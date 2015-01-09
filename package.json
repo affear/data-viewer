@@ -1,0 +1,19 @@
+{
+  "name": "polyphemus",
+  "version": "1.0.0",
+  "description": "A Polymer WebApp to display data from simulation files",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.10.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/affear/polyphemus"
+  },
+  "devDependencies": {},
+  "authors": [
+    "Lorenzo Affetti <affox90@gmail.com>",
+    "Giacomo Bresciani <brescia123@gmail.com>"
+  ],
+  "license": "MIT"
+}
