@@ -1,10 +1,14 @@
 {
   "name": "polyphemus",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A Polymer WebApp to display data from simulation files",
   "main": "server.js",
   "dependencies": {
     "express": "^4.10.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
