@@ -1,14 +1,11 @@
 <!DOCTYPE html>
-
 <html>
-
 <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
 
 <head>
-    <script type="text/javascript" src="../bower_components/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
     <script src="bower_components/webcomponentsjs/webcomponents.js"></script>
     <script type="text/javascript" src="scripts/script.js"></script>
-
     <link rel="import" href="bower_components/font-roboto/roboto.html">
     <link rel="import" href="bower_components/core-ajax/core-ajax.html">
     <link rel="import" href="bower_components/core-scaffold/core-scaffold.html">
@@ -17,23 +14,17 @@
     <link rel="import" href="bower_components/paper-item/paper-item.html">
     <link rel="import" href="bower_components/core-animated-pages/core-animated-pages.html">
     <link rel="import" href="bower_components/core-animated-pages/transitions/slide-from-right.html">
-    <link rel="import" href="elements/log-container.html">
-
-
-
-
     <link rel="stylesheet" type="text/css" href="main.css" media="screen" />
+    <link rel="import" href="elements/base-card.html">
+
 </head>
 
-<body unresolved>
+<body unresolved fullbreed>
     <template is="auto-binding" id="t">
-
-        <core-ajax id="ajax" url="{{selectedPage.page.url}}" handleAs="text" on-core-response="{{onResponse}}">
+        <core-ajax id="ajax" url="{{selectedPage.page.url}}" handleAs="document" on-core-response="{{onResponse}}">
         </core-ajax>
-
         <flatiron-director route="{{route}}" autoHash></flatiron-director>
-
-        <core-scaffold id="scaffold" responsiveWidth="2000px">
+        <core-scaffold id="scaffold" responsiveWidth="1000px">
             <nav>
                 <core-toolbar id="menu-tool">
                     Polyphemus
@@ -48,11 +39,9 @@
                     </template>
                 </core-menu>
             </nav>
-
             <core-toolbar tool flex id="content-tool">
                 <div flex>{{selectedPage.page.title}}</div>
             </core-toolbar>
-
             <div class="content" layout horizontal center-center fit>
                 <core-animated-pages id="pages" selected="{{route}}" transitions="slide-from-right" valueattr="hash">
                     <template repeat="{{page in pages}}">
@@ -63,9 +52,7 @@
                 </core-animated-pages>
             </div>
         </core-scaffold>
-
     </template>
-
 </body>
 
 </html>
