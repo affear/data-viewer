@@ -14,3 +14,4 @@ If you are developing:
 ```
 	docker run --rm -ti -v $(pwd)/app:/app -v $(pwd)/scripts:/scripts -p 80:3000 affear/polyphemus
 ```
+The -v option maps your local folders to the corresponding ones in the container allowing you to see real time code changes.
