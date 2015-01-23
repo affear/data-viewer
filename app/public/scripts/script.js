@@ -15,26 +15,6 @@
             hash: "chart",
             icon: "trending-up",
             url: 'pages/chart_page.html',
-        }, {
-            title: "Compute Log",
-            hash: "compute_log",
-            icon: "toc",
-            url: 'pages/compute_page.html',
-        }, {
-            title: "Scheduler Log",
-            hash: "scheduler_log",
-            icon: "toc",
-            url: 'pages/scheduler_page.html',
-        }, {
-            title: "Consolidator Log",
-            hash: "consolidator_log",
-            icon: "toc",
-            url: 'pages/consolidator_page.html',
-        }, {
-            title: "Database Log",
-            hash: "database_log",
-            icon: "toc",
-            url: 'pages/db_page.html',
         }];
         template.pageTitle = template.pages[0];
         template.addEventListener('template-bound', function(e) {
