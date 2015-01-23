@@ -10,7 +10,7 @@ You simply build and run the Docker image:
 ```
 The --rm option automatically clean up and remove the container when it exists.
 
-If you are developing:
+If you are developing (run it from the project root):
 ```
 	docker run --rm -ti -v $(pwd)/app:/app -v $(pwd)/scripts:/scripts -p 80:3000 affear/polyphemus
 ```
