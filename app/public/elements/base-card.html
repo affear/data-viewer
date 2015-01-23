@@ -1,0 +1,32 @@
+<link rel="import" href="../bower_components/paper-shadow/paper-shadow.html">
+
+<polymer-element name="base-card" attributes="z">
+    <template>
+        <style>
+        :host {
+            display: inline-block;
+            overflow: hidden;
+        }
+        .card {
+            margin: 1em;
+            border-radius: 4px;
+            padding: 1em;
+            background-color: #fff;
+        }
+        </style>
+        <paper-shadow z="{{z}}" class="card" animated on-mouseover="{{onMouseOver}}" on-mouseout="{{onMouseOut}}">
+            <content flex></content>
+        </paper-shadow>
+    </template>
+    <script>
+    Polymer('base-card', {
+        z: 1,
+        onMouseOver: function(e, detail, sender) {
+            sender.setZ(this.z + 1);
+        },
+        onMouseOut: function(e, detail, sender) {
+            sender.setZ(this.z - 1);
+        }
+    });
+    </script>
+</polymer-element>
