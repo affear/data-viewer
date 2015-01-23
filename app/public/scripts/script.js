@@ -3,18 +3,23 @@
 
     document.addEventListener('polymer-ready', function() {
 
-        var DEFAULT_ROUTE = "chart";
+        var DEFAULT_ROUTE = "summary";
         var template = document.querySelector('#t');
-        //var menuItem = document.querySelector('#menu-item');
         var pages = document.querySelector('#pages');
         var cache = {};
         var ajax;
 
         template.pages = [{
-            title: "Simulation Summary",
-            hash: "chart",
+            title: "Summary",
+            hash: "summary",
             icon: "trending-up",
-            url: 'pages/chart_page.html',
+            url: 'pages/sim-summary.html'
+        },
+        {
+            title: "Simulations History",
+            hash: "history",
+            icon: "toc",
+            url: "pages/sim-history.html"
         }];
         template.pageTitle = template.pages[0];
         template.addEventListener('template-bound', function(e) {
@@ -31,15 +36,13 @@
                     document.querySelector('core-scaffold').closeDrawer();
                     document.title = template.selectedPage.page.title;
                 });
-
             }
         }
         template.onResponse = function(e, detail, sender) {
-            var html = detail.response;
-            cache[ajax.url] = html; // Primitive caching by URL.
+            var article = detail.response.querySelector('article');
+            cache[ajax.url] = article.URL; // Primitive caching by URL.
             var pages = document.querySelector('#pages');
-            this.injectBoundHTML(html,
-                pages.selectedItem.firstElementChild);
+            this.injectBoundHTML(article.innerHTML, pages.selectedItem.firstElementChild);
         };
 
     });
