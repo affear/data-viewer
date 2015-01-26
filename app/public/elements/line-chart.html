@@ -1,0 +1,51 @@
+<script src="../bower_components/chartjs/Chart.js"></script>
+
+<polymer-element name="line-chart">
+    <template>
+        <style>
+        </style>
+        <canvas id="chart" width="400" height="400"></canvas>
+        <!-- {{data}} -->
+    </template>
+    <script>
+    (function() {
+        Polymer('line-chart', {
+            publish: {
+                // Limit of values visulized
+                dataLimit: 20,
+
+                // The new data must contain an array with a new value for every dataset
+                addData: function(newData, newLabel) {
+                    console.log("line-chart.addData");
+
+                    // Add data the the chart
+                    this.lineChart.addData(newData, newLabel);
+                    
+                    // Remove the last if over the limit
+                    if (this.lineChart.datasets[0].points.length > this.dataLimit) {
+                        this.lineChart.removeData();
+                    }
+                },
+
+                // Initialize the chart with the first data
+                init: function(data) {
+                    console.log("line-chart.init");
+                    
+                    // Create the chart
+                    var ctx = this.$.chart.getContext('2d');
+                    this.chart = new Chart(ctx);
+
+                    // Set the labels based on the dataLimit attribute
+                    data.labels = [];
+                    for (var i = 0; i < this.dataLimit; i++) {
+                    	data.labels.push(i); 
+                    };
+
+                    // Draw the chart
+                    this.lineChart = this.chart.Line(data);
+                }
+            }
+        });
+    })();
+    </script>
+</polymer-element>
