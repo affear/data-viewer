@@ -1,10 +1,10 @@
 <script type="text/javascript" src="scripts/sim-live.js"></script>
 
 <article>
-    <template is="auto-binding" id="content">
+    <template is="auto-binding" id="content" layout horizontal>
         <base-card>
             <div horizontal layout>
-                <h1 flex>Line Chart</h1>
+                <h1 flex>{{proxy1}}</h1>
                 <paper-dropdown-menu label="Select snapshot">
                     <paper-dropdown class="dropdown">
                         <core-menu class="menu" on-core-select="{{selectAction}}">
@@ -19,7 +19,7 @@
         </base-card>
         <base-card>
             <div horizontal layout>
-                <h1 flex>Bar Chart</h1>
+                <h1 flex>{{proxy2}}</h1>
                 <paper-dropdown-menu label="Select snapshot">
                     <paper-dropdown class="dropdown">
                         <core-menu class="menu" on-core-select="{{selectAction}}">
