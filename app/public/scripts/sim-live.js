@@ -41,10 +41,19 @@ document.querySelector('#live-template').addEventListener('template-bound', func
 
             // TODO Change to array of proxies
             // Update charts
-            last_sim_proxies_ref.child('0_0_0_0__3000/snapshots').on('child_added', function(data) {
-                var snapshot = data.val();
+            last_sim_proxies_ref.child('0_0_0_0__3000/snapshots').on('value', function(data) {
+                var snapshots = data.val();
                 chart1 = document.querySelector('#chart1');
-                chart1.addData([snapshot.avg_r_local_gb * 1000, snapshot.avg_r_memory_mb * 1000, snapshot.avg_r_vcpus * 1000, snapshot.no_active_cmps], "ok");
+
+                // Get the last snapshots id based on the array length
+                var last_snapshot_id = snapshots.length - 1;
+                var avg_r_local_gb = snapshots[last_snapshot_id].avg_r_local_gb * 1000;
+                var avg_r_memory_mb = snapshots[last_snapshot_id].avg_r_memory_mb * 1000;
+                var avg_r_vcpus = snapshots[last_snapshot_id].avg_r_vcpus * 1000;
+                var no_active_cmps = snapshots[last_snapshot_id].no_active_cmps;
+
+                // Add data to the chart
+                chart1.addData([avg_r_local_gb, avg_r_memory_mb, avg_r_vcpus, no_active_cmps], last_snapshot_id);
             });
         });
     }
