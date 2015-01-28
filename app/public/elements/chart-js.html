@@ -1,0 +1,84 @@
+<script src="../bower_components/chartjs/Chart.js"></script>
+
+<polymer-element name="chart-js">
+    <template>
+        <style>
+        </style>
+        <canvas id="chart" width="900" height="400"></canvas>
+    </template>
+    <script>
+    (function() {
+        Polymer('chart-js', {
+            publish: {
+                // Default limit of values visulized
+                dataLimit: 20,
+                chartType: 'line',
+
+                initData: {
+                    value: false,
+                    reflect: true
+                },
+
+                // Add new data to the chart; must provide an array with a value for every dataset of the chart
+                // and a new label otherwise skip
+                addData: function(newValues, newLabel) {
+                    // Add data the the chart
+                    this.chart.addData(newValues, newLabel);
+
+                    // Remove the last if over the limit
+                    if (this.chart.datasets[0].points.length > this.dataLimit) {
+                        this.chart.removeData();
+                    }
+                },
+
+                // Set the init data, if no data are provided set as many "0" as in this.dataLimit
+                initDataChanged: function(oldData, newData) {
+                    console.log(this.initData);
+                    labels = this.initData.labels;
+                    dataMissing = true;
+                    for (dataset in this.initData.datasets) {
+                        if (dataset.data) dataMissing = false;
+                    }
+
+                    // If no values and no labels are provided set defaults 
+                    if (!labels && dataMissing) {
+                        // Set default data
+                        for (var i = 0; i < this.initData.datasets.length; i++) {
+                            this.initData.datasets[i].data = [];
+                            for (var j = 0; j < this.dataLimit; j++) {
+                                this.initData.datasets[i].data.push(0);
+                            };
+                        };
+
+                        // Set the labels based on the dataLimit attribute
+                        this.initData.labels = [];
+                        for (var i = 0; i < this.dataLimit; i++) {
+                            this.initData.labels.push(0);
+                        };
+                    }
+
+                    if (!this.chart) { // Create the chart
+                        var ctx = this.$.chart.getContext('2d');
+                        this.chart = new Chart(ctx);
+
+                        // Draw the chart
+                        if (this.chartType == 'line') {
+                            this.chart = this.chart.Line(this.initData);
+                        }
+                        if (this.chartType == 'bar') {
+                            this.chart = this.chart.Bar(this.initData);
+                        }
+                    } else {
+                        for (var i = 0; i < this.initData.datasets.length; i++) {
+                            for (var j = 0; j < this.initData.datasets[i].data.length; j++) {
+                                this.initData.datasets[i].points[j] = this.initData.datasets[i].data[j];
+                            };
+                        };
+                        this.chart.update;
+                    }
+                }
+            },
+        });
+    })();
+    </script>
+</polymer-element>
