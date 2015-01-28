@@ -1,0 +1,36 @@
+<script type="text/javascript" src="scripts/sim-live.js"></script>
+
+<article>
+    <template is="auto-binding" id="content">
+        <base-card>
+            <div horizontal layout>
+                <h1 flex>Line Chart</h1>
+                <paper-dropdown-menu label="Select snapshot">
+                    <paper-dropdown class="dropdown">
+                        <core-menu class="menu" on-core-select="{{selectAction}}">
+                            <template repeat="{{snapshot in last_sim_snapshots}}">
+                                <paper-item>{{snapshot.command}}</paper-item>
+                            </template>
+                        </core-menu>
+                    </paper-dropdown>
+                </paper-dropdown-menu>
+            </div>
+            <chart-js dataLimit="10" initData="{{lineInitData}}" chartType="line"></chart-js>
+        </base-card>
+        <base-card>
+            <div horizontal layout>
+                <h1 flex>Bar Chart</h1>
+                <paper-dropdown-menu label="Select snapshot">
+                    <paper-dropdown class="dropdown">
+                        <core-menu class="menu" on-core-select="{{selectAction}}">
+                            <template repeat="{{snapshot in last_sim_snapshots}}">
+                                <paper-item>{{snapshot.command}}</paper-item>
+                            </template>
+                        </core-menu>
+                    </paper-dropdown>
+                </paper-dropdown-menu>
+            </div>
+            <chart-js dataLimit="10" initData="{{barInitData}}" chartType="bar"></chart-js>
+        </base-card>
+    </template>
+</article>

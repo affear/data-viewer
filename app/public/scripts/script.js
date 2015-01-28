@@ -3,17 +3,17 @@
 
     document.addEventListener('polymer-ready', function() {
 
-        var DEFAULT_ROUTE = "summary";
+        var DEFAULT_ROUTE = "live";
         var template = document.querySelector('#t');
         var pages = document.querySelector('#pages');
         var cache = {};
         var ajax;
 
         template.pages = [{
-            title: "Summary",
-            hash: "summary",
+            title: "Live Simulation",
+            hash: "live",
             icon: "trending-up",
-            url: 'pages/sim-summary.html'
+            url: 'pages/sim-live.html'
         },
         {
             title: "Simulations History",
