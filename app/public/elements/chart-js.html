@@ -57,25 +57,28 @@
                         };
                     }
 
-                    if (!this.chart) { // Create the chart
-                        var ctx = this.$.chart.getContext('2d');
-                        this.chart = new Chart(ctx);
 
-                        // Draw the chart
-                        if (this.chartType == 'line') {
-                            this.chart = this.chart.Line(this.initData);
-                        }
-                        if (this.chartType == 'bar') {
-                            this.chart = this.chart.Bar(this.initData);
-                        }
-                    } else {
-                        for (var i = 0; i < this.initData.datasets.length; i++) {
-                            for (var j = 0; j < this.initData.datasets[i].data.length; j++) {
-                                this.initData.datasets[i].points[j] = this.initData.datasets[i].data[j];
-                            };
-                        };
-                        this.chart.update;
+                    // TODO fix the update
+
+                    // if (!this.chart) { // Create the chart
+                    var ctx = this.$.chart.getContext('2d');
+                    this.chart = new Chart(ctx);
+
+                    // Draw the chart
+                    if (this.chartType == 'line') {
+                        this.chart = this.chart.Line(this.initData);
                     }
+                    if (this.chartType == 'bar') {
+                        this.chart = this.chart.Bar(this.initData);
+                    }
+                    // } else {
+                    //     for (var i = 0; i < this.initData.datasets.length; i++) {
+                    //         for (var j = 0; j < this.initData.datasets[i].data.length; j++) {
+                    //             this.initData.datasets[i].points[j] = this.initData.datasets[i].data[j];
+                    //         };
+                    //     };
+                    //     this.chart.update;
+                    // }
                 }
             },
         });

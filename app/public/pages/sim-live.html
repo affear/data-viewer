@@ -1,36 +1,40 @@
-<script type="text/javascript" src="scripts/sim-live.js"></script>
-
 <article>
-    <template is="auto-binding" id="content" layout horizontal>
-        <base-card>
-            <div horizontal layout>
-                <h1 flex>{{proxy1}}</h1>
-                <paper-dropdown-menu label="Select snapshot">
-                    <paper-dropdown class="dropdown">
-                        <core-menu class="menu" on-core-select="{{selectAction}}">
-                            <template repeat="{{snapshot in last_sim_snapshots}}">
-                                <paper-item>{{snapshot.command}}</paper-item>
-                            </template>
-                        </core-menu>
-                    </paper-dropdown>
-                </paper-dropdown-menu>
-            </div>
-            <chart-js dataLimit="10" initData="{{lineInitData}}" chartType="line"></chart-js>
+    <script id="affosuca" type="text/javascript" src="scripts/sim-live.js"></script>
+    <template id="live-template" is="auto-binding" layout horizontal>
+        <base-card id="no-running-msg" style="display: none;" horizontal layout>
+            <h1 flex>No running simulation</h1>
         </base-card>
-        <base-card>
-            <div horizontal layout>
-                <h1 flex>{{proxy2}}</h1>
-                <paper-dropdown-menu label="Select snapshot">
-                    <paper-dropdown class="dropdown">
-                        <core-menu class="menu" on-core-select="{{selectAction}}">
-                            <template repeat="{{snapshot in last_sim_snapshots}}">
-                                <paper-item>{{snapshot.command}}</paper-item>
-                            </template>
-                        </core-menu>
-                    </paper-dropdown>
-                </paper-dropdown-menu>
-            </div>
-            <chart-js dataLimit="10" initData="{{barInitData}}" chartType="bar"></chart-js>
-        </base-card>
+        <div id="sim-live" style="display: none;">
+            <base-card>
+                <div horizontal layout>
+                    <h1 flex>{{proxy1}}</h1>
+                    <paper-dropdown-menu label="Select snapshot">
+                        <paper-dropdown class="dropdown">
+                            <core-menu class="menu" on-core-select="{{selectAction}}">
+                                <template repeat="{{snapshot in last_sim_snapshots}}">
+                                    <paper-item>{{snapshot.command}}</paper-item>
+                                </template>
+                            </core-menu>
+                        </paper-dropdown>
+                    </paper-dropdown-menu>
+                </div>
+                <chart-js id="chart1" dataLimit="10" initData="{{lineChart1InitData}}" chartType="line"></chart-js>
+            </base-card>
+            <base-card>
+                <div horizontal layout>
+                    <h1 flex>{{proxy2}}</h1>
+                    <paper-dropdown-menu label="Select snapshot">
+                        <paper-dropdown class="dropdown">
+                            <core-menu class="menu" on-core-select="{{selectAction}}">
+                                <template repeat="{{snapshot in last_sim_snapshots}}">
+                                    <paper-item>{{snapshot.command}}</paper-item>
+                                </template>
+                            </core-menu>
+                        </paper-dropdown>
+                    </paper-dropdown-menu>
+                </div>
+                <chart-js id="chart2" dataLimit="10" initData="{{barInitData}}" chartType="bar"></chart-js>
+            </base-card>
+        </div>
     </template>
 </article>
