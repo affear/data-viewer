@@ -5,36 +5,23 @@
             <h1 flex>No running simulation</h1>
         </base-card>
         <div id="sim-live" style="display: none;">
-            <base-card>
-                <div horizontal layout>
-                    <h1 flex>{{proxy1}}</h1>
-                    <paper-dropdown-menu label="Select snapshot">
-                        <paper-dropdown class="dropdown">
-                            <core-menu class="menu" on-core-select="{{selectAction}}">
-                                <template repeat="{{snapshot in last_sim_snapshots}}">
-                                    <paper-item>{{snapshot.command}}</paper-item>
-                                </template>
-                            </core-menu>
-                        </paper-dropdown>
-                    </paper-dropdown-menu>
-                </div>
-                <chart-js id="chart1" dataLimit="10" initData="{{lineChart1InitData}}" chartType="line"></chart-js>
-            </base-card>
-            <base-card>
-                <div horizontal layout>
-                    <h1 flex>{{proxy2}}</h1>
-                    <paper-dropdown-menu label="Select snapshot">
-                        <paper-dropdown class="dropdown">
-                            <core-menu class="menu" on-core-select="{{selectAction}}">
-                                <template repeat="{{snapshot in last_sim_snapshots}}">
-                                    <paper-item>{{snapshot.command}}</paper-item>
-                                </template>
-                            </core-menu>
-                        </paper-dropdown>
-                    </paper-dropdown-menu>
-                </div>
-                <chart-js id="chart2" dataLimit="10" initData="{{barInitData}}" chartType="bar"></chart-js>
-            </base-card>
+            <template repeat="{{proxy in proxies}}">
+                <base-card>
+                    <div horizontal layout>
+                        <h1 flex>{{proxy.address}}</h1>
+                        <paper-dropdown-menu label="Select snapshot">
+                            <paper-dropdown class="dropdown">
+                                <core-menu class="menu" on-core-select="{{selectAction}}">
+                                    <template repeat="{{snapshot in last_sim_snapshots}}">
+                                        <paper-item>{{snapshot.command}}</paper-item>
+                                    </template>
+                                </core-menu>
+                            </paper-dropdown>
+                        </paper-dropdown-menu>
+                    </div>
+                    <chart-js id="addr{{proxy.address}}" dataLimit="10" initData="{{lineChart1InitData}}" chartType="line"></chart-js>
+                </base-card>
+            </template>
         </div>
     </template>
 </article>
