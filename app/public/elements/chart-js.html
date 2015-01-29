@@ -2,9 +2,8 @@
 
 <polymer-element name="chart-js">
     <template>
-        <style>
-        </style>
         <canvas id="chart" width="450" height="200"></canvas>
+        <div id="legend">LEGEND</div>
     </template>
     <script>
     (function() {
@@ -33,8 +32,9 @@
 
                 // Set the init data, if no data are provided set as many "0" as in this.dataLimit
                 initDataChanged: function(oldData, newData) {
-                    console.log(this.initData);
+
                     labels = this.initData.labels;
+                    // Check if at least one dataset has data
                     dataMissing = true;
                     for (dataset in this.initData.datasets) {
                         if (dataset.data) dataMissing = false;
@@ -71,6 +71,10 @@
                     if (this.chartType == 'bar') {
                         this.chart = this.chart.Bar(this.initData);
                     }
+
+                    // Set the legend
+                    var legendHTML = this.chart.generateLegend();
+                    this.$.legend.innerHTML = legendHTML;
                     // } else {
                     //     for (var i = 0; i < this.initData.datasets.length; i++) {
                     //         for (var j = 0; j < this.initData.datasets[i].data.length; j++) {
