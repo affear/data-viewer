@@ -3,8 +3,6 @@ document.querySelector('#live-template').addEventListener('template-bound', func
     // HTML Elements
     var template = document.querySelector('#live-template');
     var sim_live = document.querySelector('#sim-live');
-    var chart1 = document.querySelector('#chart1');
-    var chart2 = document.querySelector('#chart2');
     var error_message = document.querySelector('#no-running-msg');
 
     // Firebase references
@@ -39,45 +37,70 @@ document.querySelector('#live-template').addEventListener('template-bound', func
 
         last_sim_id_ref.once('value', function(data) {
 
-            initLineCharts()
+            initLineCharts();
 
             var last_sim_id = data.val();
 
             var last_sim_ref = bifrost.child('sims/' + last_sim_id);
             var last_sim_proxies_ref = last_sim_ref.child('proxies');
 
-            var proxy_counter = 0;
-
             // Update charts
             last_sim_proxies_ref.on('child_added', function(data) {
-                var new_proxy = data.val();
+                var new_proxy = {
+                    id: data.key(),
+                    val: data.val()
+                }
+
                 template.proxies.push(new_proxy);
 
-                // Updating Sanpshots
-                var snapshot_count = 0;
-                new_proxy_snapshots_ref = last_sim_proxies_ref.child(proxy_counter + '/snapshots');
-                new_proxy_snapshots_ref.on('child_added', function(data) {
-                    var snapshot = data.val();
-                    chart = document.querySelector('#addr' + new_proxy.address);
+                // initBarCharts();
 
-                    var avg_r_local_gb = snapshot.avg_r_local_gb * 1000;
-                    var avg_r_memory_mb = snapshot.avg_r_memory_mb * 1000;
-                    var avg_r_vcpus = snapshot.avg_r_vcpus * 1000;
-                    var no_active_cmps = snapshot.no_active_cmps;
+                var new_proxy_line_chart = $('#line-chart' + new_proxy.id);
+                new_proxy_line_chart.ready(function(){
+                    console.log($('#line-chart' + new_proxy.id)[0]);
+                })
 
-                    // Add data to the chart
-                    chart1.addData([avg_r_local_gb, avg_r_memory_mb, avg_r_vcpus, no_active_cmps], last_snapshot_id);
+                function _update_chart() {
+                    // Updating Sanpshots
+                    var snapshot_count = 0;
+                    new_proxy_snapshots_ref = last_sim_proxies_ref.child(new_proxy.id + '/snapshots');
+                    new_proxy_snapshots_ref.on('child_added', function(data) {
+                        var new_snapshot = {
+                            id: data.key(),
+                            val: data.val()
+                        }
 
-                    snapshot_count++;
-                });
+                        // var new_proxy_bar_chart = document.querySelector('#bar-chart' + new_proxy.id);
 
-                proxy_counter++;
+                        var command = new_snapshot.val.command;
+
+                        // LINE CHART
+                        // Get data
+                        var avg_r_local_gb = new_snapshot.val.avg_r_local_gb * 1000;
+                        var avg_r_memory_mb = new_snapshot.val.avg_r_memory_mb * 1000;
+                        var avg_r_vcpus = new_snapshot.val.avg_r_vcpus * 1000;
+                        var no_active_cmps = new_snapshot.val.no_active_cmps;
+
+                        // Add to the chart
+                        // console.log(new_proxy_line_chart);
+                        new_proxy_line_chart[0].addData([avg_r_local_gb, avg_r_memory_mb, avg_r_vcpus, no_active_cmps], new_snapshot.id);
+
+                        // BAR CHART
+
+                        var cmps = new_snapshot.val.cmps;
+                        // template.barChartInitData.datasets[0].data= [Math.random() * 100,Math.random() * 100,Math.random() * 100]
+
+                    });
+                }
+
+                //new_proxy_line_chart.ready(_update_chart);
+
             });
         });
     }
 
     var initLineCharts = function() {
-        template.lineChart1InitData = {
+        template.lineChartInitData = {
             datasets: [{
                 label: "avg_r_local_gb",
                 fillColor: "rgba(244, 67, 54, 0.2)",
@@ -112,5 +135,21 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                 pointHighlightStroke: "rgba(255, 191, 66, 1)",
             }, ]
         };
+    }
+
+    var initBarCharts = function() {
+        template.barChartInitData = {
+            labels: [1, 2, 3],
+            datasets: [{
+                data: [1, 2, 3],
+                label: "avg_r_local_gb",
+                fillColor: "rgba(244, 67, 54, 0.2)",
+                strokeColor: "rgba(244, 67, 54, 1)",
+                pointColor: "rgba(244, 67, 54, 1)",
+                pointStrokeColor: "#fff",
+                pointHighlightFill: "#fff",
+                pointHighlightStroke: "rgba(244, 67, 54, 1)",
+            }]
+        }
     }
 });
