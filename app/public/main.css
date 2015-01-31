@@ -12,14 +12,12 @@ core-animated-pages {
     width: 100%;
     height: 100%;
     -webkit-user-select: none;
-
 }
 core-animated-pages #page-content {
     width: 100%;
     height: 100%;
     overflow: auto;
     background-color: #ECEFF1;
-
 }
 core-animated-pages > * {
     border-radius: 5px;
@@ -57,24 +55,21 @@ core-icon {
     margin: 1.5em;
     background-color: white;
 }
-#chart-shadow google-chart{
+#chart-shadow google-chart {
     width: 100%;
     height: 100%;
 }
-
-.section-title{
+.section-title {
     font-size: 20px;
     font-weight: 400;
     color: gray;
     text-transform: uppercase;
     text-align: center;
 }
-
-.smart p{
+.smart p {
     color: #4CAF50;
 }
-
-.smart hr{
+.smart hr {
     color: #4CAF50;
     border-color: #4CAF50;
 }
