@@ -2,7 +2,7 @@
 
 <polymer-element name="chart-js">
     <template>
-        <canvas id="chart" width="450" height="200"></canvas>
+        <canvas id="chart" width="450" height="300"></canvas>
     </template>
     <script>
     (function() {
@@ -29,6 +29,17 @@
                     }
                 },
 
+                // Replace the current with newData a two dimension array
+                update: function(newData) {
+                    if (this.chart) {
+                        for (var i = 0; i < newData.length; i++) {
+                            for (var j = 0; j < newData[i].length; j++) {
+                                this.chart.datasets[i].bars[j].value = newData[i][j];
+                            };
+                        };
+                        this.chart.update();
+                    }
+                },
                 // Set the init data, if no data are provided set as many "0" as in this.dataLimit
                 initDataChanged: function(oldData, newData) {
 
@@ -57,27 +68,17 @@
                     }
 
                     // Create the chart
-                    if (!this.chart) {
-                        var ctx = this.$.chart.getContext('2d');
-                        this.chart = new Chart(ctx);
+                    var ctx = this.$.chart.getContext('2d');
+                    this.chart = new Chart(ctx);
 
-                        // Draw the chart
-                        if (this.chartType == 'line') {
-                            this.chart = this.chart.Line(this.initData);
-                        }
-                        if (this.chartType == 'bar') {
-                            this.chart = this.chart.Bar(this.initData);
-                        }
+                    // Draw the chart
+                    if (this.chartType == 'line') {
+                        this.chart = this.chart.Line(this.initData);
                     }
-                    // Update the chart
-                    else {
-                        for (var i = 0; i < this.initData.datasets.length; i++) {
-                            for (var j = 0; j < this.initData.datasets[i].data.length; j++) {
-                                this.initData.datasets[i].points[j] = this.initData.datasets[i].data[j];
-                            };
-                        };
-                        this.chart.update();
+                    if (this.chartType == 'bar') {
+                        this.chart = this.chart.Bar(this.initData);
                     }
+
                 }
             },
         });
