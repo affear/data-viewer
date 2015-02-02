@@ -1,34 +1,45 @@
 <link rel="import" href="../bower_components/paper-shadow/paper-shadow.html">
 
 <polymer-element name="base-card" attributes="z">
-    <template>
-        <style>
-        :host {
-            display: inline-block;
-        }
-        .card {
-            margin: 1em;
-            font-size: 1em;
-            border-radius: 4px;
-            padding: 1.5em;
-            background-color: #fff;
-            font-family: 'RobotoDraft', sans-serif;
-            font-weight: 300;
-        }
-        </style>
-        <paper-shadow z="{{z}}" class="card" animated on-mouseover="{{onMouseOver}}" on-mouseout="{{onMouseOut}}">
-            <content flex></content>
-        </paper-shadow>
-    </template>
-    <script>
-    Polymer('base-card', {
-        z: 1,
-        onMouseOver: function(e, detail, sender) {
-            sender.setZ(this.z + 1);
-        },
-        onMouseOut: function(e, detail, sender) {
-            sender.setZ(this.z - 1);
-        }
-    });
-    </script>
+  <template>
+    <style>
+    :host {
+      display: inline-block;
+      overflow: scroll;
+    }
+    .card {
+      margin: 1em;
+      font-size: 1em;
+      border-radius: 4px;
+      background-color: #fff;
+    }
+    ::content[select=".card-content"] div {
+      padding: 1.5em;
+    }
+    ::content[select=".card-tool"] core-toolbar {
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+      border-bottom-style: solid;
+      border-bottom-width: 1px;
+      border-bottom-color: #E3E3E3;
+      color: #6E6E6E;
+      font-size: 1.5em;
+    }
+    </style>
+    <paper-shadow z="{{z}}" class="card" animated on-mouseover="{{onMouseOver}}" on-mouseout="{{onMouseOut}}" layout vertical>
+      <content select=".card-tool"></content>
+      <content select=".card-content"></content>
+    </paper-shadow>
+  </template>
+  <script>
+  Polymer('base-card', {
+    z: 1,
+    onMouseOver: function(e, detail, sender) {
+      sender.setZ(this.z + 1);
+    },
+    onMouseOut: function(e, detail, sender) {
+      sender.setZ(this.z - 1);
+    }
+  });
+  </script>
 </polymer-element>
