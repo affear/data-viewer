@@ -1,87 +1,96 @@
 <script src="../bower_components/chartjs/Chart.js"></script>
 
 <polymer-element name="chart-js">
-    <template>
-        <canvas id="chart" width="450" height="300"></canvas>
-    </template>
-    <script>
-    (function() {
-        Polymer('chart-js', {
-            publish: {
-                // Default limit of values visulized
-                dataLimit: 20,
-                chartType: 'line',
+  <style>
+  :host {
+    display: inline-block;
+  }
+  </style>
+  <template>
+    <div id="chart-container">
+      <canvas id="chart"></canvas>
+    </div>
+  </template>
+  <script>
+  (function() {
+    Polymer('chart-js', {
+      publish: {
+        // Default limit of values visulized
+        dataLimit: 20,
+        chartType: 'line',
 
-                initData: {
-                    value: false,
-                    reflect: true
-                },
+        initData: {
+          value: false,
+          reflect: true
+        },
 
-                // Add new data to the chart; must provide an array with a value for every dataset of the chart
-                // and a new label otherwise skip
-                addData: function(newValues, newLabel) {
-                    // Add data the the chart
-                    this.chart.addData(newValues, newLabel);
+        // Set the init data, if no data are provided set as many "0" as in this.dataLimit
+        initDataChanged: function(oldData, newData) {
 
-                    // Remove the last if over the limit
-                    if (this.chart.datasets[0].points.length > this.dataLimit) {
-                        this.chart.removeData();
-                    }
-                },
+          labels = this.initData.labels;
+          // Check if at least one dataset has data
+          dataMissing = true;
+          for (dataset in this.initData.datasets) {
+            if (dataset.data) dataMissing = false;
+          }
 
-                // Replace the current with newData a two dimension array
-                update: function(newData) {
-                    if (this.chart) {
-                        for (var i = 0; i < newData.length; i++) {
-                            for (var j = 0; j < newData[i].length; j++) {
-                                this.chart.datasets[i].bars[j].value = newData[i][j];
-                            };
-                        };
-                        this.chart.update();
-                    }
-                },
-                // Set the init data, if no data are provided set as many "0" as in this.dataLimit
-                initDataChanged: function(oldData, newData) {
+          // If no values and no labels are provided set defaults 
+          if (!labels && dataMissing) {
+            // Set default data
+            for (var i = 0; i < this.initData.datasets.length; i++) {
+              this.initData.datasets[i].data = [];
+              for (var j = 0; j < this.dataLimit; j++) {
+                this.initData.datasets[i].data.push(0);
+              };
+            };
 
-                    labels = this.initData.labels;
-                    // Check if at least one dataset has data
-                    dataMissing = true;
-                    for (dataset in this.initData.datasets) {
-                        if (dataset.data) dataMissing = false;
-                    }
+            // Set the labels based on the dataLimit attribute
+            this.initData.labels = [];
+            for (var i = 0; i < this.dataLimit; i++) {
+              this.initData.labels.push(0);
+            };
+          }
 
-                    // If no values and no labels are provided set defaults 
-                    if (!labels && dataMissing) {
-                        // Set default data
-                        for (var i = 0; i < this.initData.datasets.length; i++) {
-                            this.initData.datasets[i].data = [];
-                            for (var j = 0; j < this.dataLimit; j++) {
-                                this.initData.datasets[i].data.push(0);
-                            };
-                        };
+          // Create the chart
+          var ctx = this.$.chart.getContext('2d');
+          this.chart = new Chart(ctx);
 
-                        // Set the labels based on the dataLimit attribute
-                        this.initData.labels = [];
-                        for (var i = 0; i < this.dataLimit; i++) {
-                            this.initData.labels.push(0);
-                        };
-                    }
+          // Draw the chart
+          switch (this.chartType) {
+            case 'line':
+              this.chart = this.chart.Line(this.initData);
+              break;
+            case 'bar':
+              this.chart = this.chart.Bar(this.initData);
+              break;
+          }
+        },
+        
+        // Add new data to the chart; must provide an array with a value for every dataset of the chart
+        // and a new label otherwise skip
+        addData: function(newValues, newLabel) {
+          // Add data the the chart
+          this.chart.addData(newValues, newLabel);
 
-                    // Create the chart
-                    var ctx = this.$.chart.getContext('2d');
-                    this.chart = new Chart(ctx);
+          // Remove the last if over the limit
+          if (this.chart.datasets[0].points.length > this.dataLimit) {
+            this.chart.removeData();
+          }
+        },
 
-                    // Draw the chart
-                    if (this.chartType == 'line') {
-                        this.chart = this.chart.Line(this.initData);
-                    }
-                    if (this.chartType == 'bar') {
-                        this.chart = this.chart.Bar(this.initData);
-                    }
-
-                }
-            },
-        });
-    })();
-    </script>
+        // Replace the current with newData a two dimension array
+        update: function(newData) {
+          if (this.chart) {
+            for (var i = 0; i < newData.length; i++) {
+              for (var j = 0; j < newData[i].length; j++) {
+                this.chart.datasets[i].bars[j].value = newData[i][j];
+              };
+            };
+            this.chart.update();
+          }
+        }
+      },
+    });
+  })();
+  </script>
 </polymer-element>
