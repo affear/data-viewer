@@ -34,6 +34,8 @@ body /deep/ core-toolbar#menu-tool {
     background-color: #424242;
     color: #fff;
 }
+
+
 core-menu {
     color: #212121;
     margin: 10px 0 0 0;
@@ -72,4 +74,59 @@ core-icon {
 .smart hr {
     color: #4CAF50;
     border-color: #4CAF50;
+}
+
+
+/* Sim Live */
+
+core-header-panel {
+    min-width: 400px;
+}
+
+.card-tool /deep/ .card {
+    padding: 0px;
+    background-color: #fff;
+    color: #000;
+}
+
+#sim-live {
+    display: none;
+    width: 100%;
+    height: 100%;
+}
+
+
+.content > div {
+    width: 100%;
+    max-width: 800px;
+    height: auto;
+}
+
+.chart-card {
+    width: 100%;
+    height: 100%;
+}
+
+.card-tool {
+    background-color: #fff;
+    color: #000;
+}
+
+#loader {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#no-running-msg {
+    display: none;
+    height: 100%;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+}
+#no-running-msg h1 {
+    color: #9E9E9E;
+    text-transform: uppercase;
+    font-weight: 100;
 }
