@@ -1,35 +1,55 @@
 <article>
-    <script id="affosuca" type="text/javascript" src="scripts/sim-live.js"></script>
-    <template id="live-template" is="auto-binding" layout horizontal>
-        <base-card id="no-running-msg" style="display: none;" horizontal layout>
-            <h1 flex>No running simulation</h1>
-        </base-card>
-        <div id="sim-live" style="display: none;" layout vertical>
-            <template repeat="{{proxy in proxies}}" layout horizontal>
-                <base-card>
-                    <div horizontal layout>
-                        <h1 flex>{{proxy.val.address}}</h1>
-                    </div>
-                    <chart-js id="line-chart{{proxy.id}}" dataLimit="10" initData="{{lineChartInitData}}" chartType="line"></chart-js>
-                </base-card>
-            </template>
-            <template repeat="{{proxy in proxies}}" layout horizontal>
-                <base-card>
-                    <div horizontal layout>
-                        <h1 flex>{{proxy.val.address}}</h1>
-                        <paper-dropdown-menu label="Select snapshot">
-                            <paper-dropdown class="dropdown">
-                                <core-menu class="menu" on-core-select="{{selectAction}}">
-                                    <template repeat="{{snapshot in last_sim_snapshots}}">
-                                        <paper-item>{{snapshot.command}}</paper-item>
-                                    </template>
-                                </core-menu>
-                            </paper-dropdown>
-                        </paper-dropdown-menu>
-                    </div>
-                    <chart-js id="bar-chart{{proxy.id}}" dataLimit="{{}}" initData="{{barChartInitData}}" chartType="bar"></chart-js>
-                </base-card>
-            </template>
-        </div>
-    </template>
+  <script id="affosuca" type="text/javascript" src="scripts/sim-live.js"></script>
+  <template id="live-template" is="auto-binding">
+    <div id="loader">
+      <paper-spinner active></paper-spinner>
+    </div>
+    <div id="no-running-msg">
+      <h1 flex>No running simulation</h1>
+    </div>
+    <div id="sim-live" horizontal layout wrap>
+      <template repeat="{{proxy in proxies}}">
+        <core-header-panel flex mode="waterfall">
+          <core-toolbar class="proxy-toolbar" id="toolbar{{proxy.id}}">
+            <core-icon icon="dns"></core-icon>
+            <span flex>{{proxy.val.address}}</span>
+            <span>{{proxy.val.type}}</span>
+          </core-toolbar>
+          <div class="content" horizontal layout center-justified>
+            <div vertical layout>
+
+
+              <base-card class="chart-card">
+                <core-toolbar class="card-tool">
+                  <core-icon icon="trending-up"></core-icon>
+                  <span flex>Average Metrics</span>
+                </core-toolbar>
+                <div class="card-content">
+                  <chart-js id="line-chart{{proxy.id}}" dataLimit="10" initData="{{lineChartInitData}}" chartType="line"></chart-js>
+                </div>
+              </base-card class="chart-card">
+
+
+              <base-card class="chart-card">
+                <core-toolbar class="card-tool">
+                  <core-icon icon="trending-up"></core-icon>
+                  <paper-dropdown-menu label="Select snapshot">
+                    <paper-dropdown class="dropdown">
+                      <core-menu id="metric-sel" selected="{{metrics.selected}}" valueattr="value" class="menu" on-core-select="{{changeBarMetric()}}">
+                        <template repeat="{{option in metrics.options}}">
+                          <paper-item value="{{option.id}}">{{option.name}}</paper-item>
+                        </template>
+                      </core-menu>
+                    </paper-dropdown>
+                  </paper-dropdown-menu>                </core-toolbar>
+                <div class="card-content">
+                  <chart-js id="bar-chart{{proxy.id}}" initData="{{barChartInitData}}" chartType="bar"></chart-js>
+                </div>
+              </base-card class="chart-card">
+            </div>
+          </div>
+        </core-header-panel>
+      </template>
+    </div>
+  </template>
 </article>

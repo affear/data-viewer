@@ -4,6 +4,7 @@ document.querySelector('#live-template').addEventListener('template-bound', func
     var template = document.querySelector('#live-template');
     var sim_live = document.querySelector('#sim-live');
     var error_message = document.querySelector('#no-running-msg');
+    var paper_spinner = document.querySelector('#loader');
 
     // Firebase references
     var bifrost = new Firebase('https://bifrost.firebaseio.com');
@@ -14,20 +15,29 @@ document.querySelector('#live-template').addEventListener('template-bound', func
     // Template data-binding
     template.proxies = [];
 
+    // Chart configurations
+    Chart.defaults.global.animationSteps = 20;
+    Chart.defaults.global.responsive = true;
+    Chart.defaults.global.maintainAspectRatio = true;
+    Chart.defaults.global.scaleFontFamily = '"RobotoDraft", sans-serif';
+
+
 
     // Chek if a sim is running
     running_ref.on('value', function(data) {
         // Running
         if (data.val()) {
-            sim_live.style.display = 'block';
+            paper_spinner.style.display = 'none'
+            sim_live.style.display = 'flex';
             error_message.style.display = 'none';
             console.log('Simulation is running');
             _showLiveSim();
         }
-        // Non Running
+        // Not Running
         else {
+            paper_spinner.style.display = 'none'
             sim_live.style.display = 'none';
-            error_message.style.display = 'block';
+            error_message.style.display = 'flex';
             console.log('No simulation is running');
         }
     });
@@ -42,7 +52,7 @@ document.querySelector('#live-template').addEventListener('template-bound', func
             var last_sim_ref = bifrost.child('sims/' + last_sim_id);
             var last_sim_proxies_ref = last_sim_ref.child('proxies');
 
-            // Update charts
+            // PROXIES
             last_sim_proxies_ref.on('child_added', function(data) {
                 var new_proxy = {
                     id: data.key(),
@@ -51,22 +61,23 @@ document.querySelector('#live-template').addEventListener('template-bound', func
 
                 initLineCharts();
 
-
                 template.proxies.push(new_proxy);
                 // This is shit: check when the template renders the chart
                 var checkExist = setTimeout(function() {
                     var new_proxy_line_chart = document.querySelector('#line-chart' + new_proxy.id);
                     var new_proxy_bar_chart = document.querySelector('#bar-chart' + new_proxy.id);
+                    var new_proxy_toolbar = document.querySelector('#toolbar' + new_proxy.id);
 
-                    if (new_proxy_line_chart && new_proxy_bar_chart) {
+                    if (new_proxy_line_chart && new_proxy_bar_chart && new_proxy_toolbar) {
                         initBarCharts(new_proxy.val.architecture);
                         initDropDown();
+                        _set_proxy_toolbar_color(new_proxy_toolbar, new_proxy);
                         _update_chart(new_proxy_line_chart, new_proxy_bar_chart);
                         clearInterval(checkExist);
                     }
                 }, 100);
 
-
+                // SNAPSHOTS
                 function _update_chart(line_chart, bar_chart) {
                     // Updating Sanpshots
                     var snapshot_count = 0;
@@ -107,6 +118,17 @@ document.querySelector('#live-template').addEventListener('template-bound', func
 
                         });
                     })
+                }
+
+                var _set_proxy_toolbar_color = function (toolbar, new_proxy) {
+                    switch (new_proxy.val.type){
+                        case 'normal':
+                            toolbar.style.backgroundColor = '#B71C1C';
+                            break;
+                        case 'smart':
+                            toolbar.style.backgroundColor = '#01579B';
+                            break;
+                    }
                 }
             });
         });
