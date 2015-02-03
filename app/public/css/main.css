@@ -34,8 +34,6 @@ body /deep/ core-toolbar#menu-tool {
     background-color: #424242;
     color: #fff;
 }
-
-
 core-menu {
     color: #212121;
     margin: 10px 0 0 0;
@@ -75,43 +73,35 @@ core-icon {
     color: #4CAF50;
     border-color: #4CAF50;
 }
-
-
 /* Sim Live */
 
 core-header-panel {
     min-width: 400px;
+    height: auto;
 }
-
 .card-tool /deep/ .card {
     padding: 0px;
     background-color: #fff;
     color: #000;
 }
-
 #sim-live {
     display: none;
     width: 100%;
     height: 100%;
 }
-
-
 .content > div {
     width: 100%;
     max-width: 800px;
     height: auto;
 }
-
 .chart-card {
     width: 100%;
     height: 100%;
 }
-
 .card-tool {
     background-color: #fff;
     color: #000;
 }
-
 #loader {
     height: 100%;
     display: flex;
@@ -129,4 +119,24 @@ core-header-panel {
     color: #9E9E9E;
     text-transform: uppercase;
     font-weight: 100;
+}
+.proxy-toolbar {
+    color: #6E6E6E;
+    padding: 20px;
+    font-size: 1.5em;
+    text-transform: uppercase;
+}
+/* Remove the bottom border of the dropdown menu*/
+
+paper-dropdown-menu {
+    border-bottom: 0px;
+}
+
+.info-item {
+    min-width: 300px;
+    font-size: 1rem;
+}
+.info-val {
+    margin-left: 5px;
+    font-weight: 500;
 }

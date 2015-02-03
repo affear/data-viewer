@@ -3,10 +3,10 @@ document.querySelector('#live-template').addEventListener('template-bound', func
     // HTML Elements
     var template = document.querySelector('#live-template');
     var sim_live = document.querySelector('#sim-live');
-    var error_message = document.querySelector('#no-running-msg');
+    var no_running_msg = document.querySelector('#no-running-msg');
     var paper_spinner = document.querySelector('#loader');
 
-    // Firebase references
+    // Firebase root references
     var bifrost = new Firebase('https://bifrost.firebaseio.com');
     var running_ref = bifrost.child('running');
     var last_sim_id_ref = bifrost.child('last_sim_id');
@@ -14,6 +14,8 @@ document.querySelector('#live-template').addEventListener('template-bound', func
 
     // Template data-binding
     template.proxies = [];
+    template.stats = [];
+    template.infos = [];
 
     // Chart configurations
     Chart.defaults.global.animationSteps = 20;
@@ -21,30 +23,32 @@ document.querySelector('#live-template').addEventListener('template-bound', func
     Chart.defaults.global.maintainAspectRatio = true;
     Chart.defaults.global.scaleFontFamily = '"RobotoDraft", sans-serif';
 
-
-
-    // Chek if a sim is running
+    // FIREBASE: Get running value changes to start sim visualization
     running_ref.on('value', function(data) {
-        // Running
-        if (data.val()) {
+
+        var running = data.val();
+
+        if (running) {
+            console.log('Simulation is running');
+            // Show sim
             paper_spinner.style.display = 'none'
             sim_live.style.display = 'flex';
-            error_message.style.display = 'none';
-            console.log('Simulation is running');
-            _showLiveSim();
-        }
-        // Not Running
-        else {
+            no_running_msg.style.display = 'none';
+
+            _showRunningSim();
+        } else {
+            console.log('No simulation is running');
+            // Show no running sim message
             paper_spinner.style.display = 'none'
             sim_live.style.display = 'none';
-            error_message.style.display = 'flex';
-            console.log('No simulation is running');
+            no_running_msg.style.display = 'flex';
         }
     });
 
 
-    var _showLiveSim = function() {
+    var _showRunningSim = function() {
 
+        // FIREBASE: get last_sim_id value once
         last_sim_id_ref.once('value', function(data) {
 
             var last_sim_id = data.val();
@@ -52,7 +56,10 @@ document.querySelector('#live-template').addEventListener('template-bound', func
             var last_sim_ref = bifrost.child('sims/' + last_sim_id);
             var last_sim_proxies_ref = last_sim_ref.child('proxies');
 
-            // PROXIES
+            _update_infos(last_sim_ref);
+            // _update_stats();
+
+            // FIREBASE: get added proxy values
             last_sim_proxies_ref.on('child_added', function(data) {
                 var new_proxy = {
                     id: data.key(),
@@ -62,6 +69,7 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                 initLineCharts();
 
                 template.proxies.push(new_proxy);
+
                 // This is shit: check when the template renders the chart
                 var checkExist = setTimeout(function() {
                     var new_proxy_line_chart = document.querySelector('#line-chart' + new_proxy.id);
@@ -71,69 +79,120 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                     if (new_proxy_line_chart && new_proxy_bar_chart && new_proxy_toolbar) {
                         initBarCharts(new_proxy.val.architecture);
                         initDropDown();
-                        _set_proxy_toolbar_color(new_proxy_toolbar, new_proxy);
                         _update_chart(new_proxy_line_chart, new_proxy_bar_chart);
+                        console.log(last_sim_proxies_ref);
+                        _update_stats(last_sim_proxies_ref, new_proxy);
                         clearInterval(checkExist);
                     }
                 }, 100);
 
-                // SNAPSHOTS
-                function _update_chart(line_chart, bar_chart) {
-                    // Updating Sanpshots
-                    var snapshot_count = 0;
-                    new_proxy_snapshots_ref = last_sim_proxies_ref.child(new_proxy.id + '/snapshots');
-                    new_proxy_snapshots_ref.once('value', function(data) {
-                        // Start reading steps the last minus 10
-                        var no_runned_steps = data.numChildren();
-                        new_proxy_snapshots_ref.orderByKey().startAt((no_runned_steps - 10).toString()).on('child_added', function(data) {
-                            var new_snapshot = {
-                                id: data.key(),
-                                val: data.val()
-                            }
-
-                            var new_proxy_line_chart = line_chart;
-                            var new_proxy_bar_chart = bar_chart;
-                            var command = new_snapshot.val.command;
-
-                            // LINE CHART
-                            // Get data
-                            var avg_r_local_gb = new_snapshot.val.avg_r_local_gb * 100;
-                            var avg_r_memory_mb = new_snapshot.val.avg_r_memory_mb * 100;
-                            var avg_r_vcpus = new_snapshot.val.avg_r_vcpus * 100;
-                            var no_active_cmps = new_snapshot.val.no_active_cmps;
-
-
-                            // Add to the chart
-                            new_proxy_line_chart.addData([avg_r_local_gb, avg_r_memory_mb, avg_r_vcpus, no_active_cmps], new_snapshot.id + ': ' + new_snapshot.val.command);
-
-                            // BAR CHART
-                            var cmps = new_snapshot.val.cmps;
-                            var new_data = [
-                                []
-                            ];
-                            for (var i = 0; i < cmps.length; i++) {
-                                new_data[0].push(cmps[i].r_memory_mb * 100);
-                            };
-                            new_proxy_bar_chart.update(new_data);
-
-                        });
-                    })
-                }
-
-                var _set_proxy_toolbar_color = function (toolbar, new_proxy) {
-                    switch (new_proxy.val.type){
-                        case 'normal':
-                            toolbar.style.backgroundColor = '#B71C1C';
-                            break;
-                        case 'smart':
-                            toolbar.style.backgroundColor = '#01579B';
-                            break;
-                    }
-                }
             });
         });
     }
 
+
+    // Helper functions
+
+    /*
+    Updates the infos card
+    */
+    function _update_infos (last_sim_ref) {
+
+        template.infos = [
+            {label: 'Create', val: 0, icon: 'add-circle-outline'},
+            {label: 'Destroy', val: 0, icon: 'remove-circle-outline'},
+            {label: 'Resize', val: 0, icon: 'aspect-ratio'},
+            {label: 'Steps', val: 0, icon: 'more-horiz'},
+            {label: 'Start time', val: '', icon: 'device:access-time'},
+        ];
+
+        var no_create_ref = last_sim_ref.child('no_create');
+        var no_destroy_ref = last_sim_ref.child('no_destroy');
+        var no_resize_ref = last_sim_ref.child('no_resize');
+        var no_steps_ref = last_sim_ref.child('steps');
+        var start_ref = last_sim_ref.child('start');
+
+        no_create_ref.on('value', function (data) {
+            template.infos[0].val = data.val();
+        });
+        no_destroy_ref.on('value', function (data) {
+            template.infos[1].val = data.val();
+        });
+        no_resize_ref.on('value', function (data) {
+            template.infos[2].val = data.val();
+        });
+        no_steps_ref.on('value', function (data) {
+            template.infos[3].val = data.val();
+        });
+        start_ref.on('value', function (data) {
+            template.infos[4].val = data.val();
+        });
+    }
+
+
+    /*
+    Updates the statitistic card
+    */
+    function _update_stats(last_sim_proxies_ref, proxy) {
+        var proxy_ref = last_sim_proxies_ref.child(proxy.id);
+
+        proxy_ref.on('value', function(data) {
+            proxy = data.val();
+            template.stats = [];
+            template.stats.push({
+                title: 'aggr_r_local_gb',
+                value: proxy.aggr_r_local_gb
+            })
+        });
+    }
+
+    // SNAPSHOTS
+    function _update_chart(line_chart, bar_chart) {
+        // Updating Sanpshots
+        var snapshot_count = 0;
+        new_proxy_snapshots_ref = last_sim_proxies_ref.child(new_proxy.id + '/snapshots');
+        new_proxy_snapshots_ref.once('value', function(data) {
+            // Start reading steps the last minus 10
+            var no_runned_steps = data.numChildren();
+            new_proxy_snapshots_ref.orderByKey().startAt((no_runned_steps - 10).toString()).on('child_added', function(data) {
+                var new_snapshot = {
+                    id: data.key(),
+                    val: data.val()
+                }
+
+                var new_proxy_line_chart = line_chart;
+                var new_proxy_bar_chart = bar_chart;
+                var command = new_snapshot.val.command;
+
+                // LINE CHART
+                // Get data
+                var avg_r_local_gb = new_snapshot.val.avg_r_local_gb * 100;
+                var avg_r_memory_mb = new_snapshot.val.avg_r_memory_mb * 100;
+                var avg_r_vcpus = new_snapshot.val.avg_r_vcpus * 100;
+                var no_active_cmps = new_snapshot.val.no_active_cmps;
+
+
+                // Add to the chart
+                new_proxy_line_chart.addData([avg_r_local_gb, avg_r_memory_mb, avg_r_vcpus, no_active_cmps], new_snapshot.id + ': ' + new_snapshot.val.command);
+
+                // BAR CHART
+                var cmps = new_snapshot.val.cmps;
+                var new_data = [
+                    []
+                ];
+                for (var i = 0; i < cmps.length; i++) {
+                    new_data[0].push(cmps[i].r_memory_mb * 100);
+                };
+                new_proxy_bar_chart.update(new_data);
+
+            });
+        })
+    }
+
+
+    /*
+    Sets the dataset configurations for the line chart with data-binding
+    */
     var initLineCharts = function() {
         template.lineChartInitData = {
             datasets: [{

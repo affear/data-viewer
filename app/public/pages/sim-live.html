@@ -9,16 +9,29 @@
     </div>
     <div id="sim-live" horizontal layout wrap>
       <template repeat="{{proxy in proxies}}">
-        <core-header-panel flex mode="waterfall">
-          <core-toolbar class="proxy-toolbar" id="toolbar{{proxy.id}}">
-            <core-icon icon="dns"></core-icon>
-            <span flex>{{proxy.val.address}}</span>
-            <span>{{proxy.val.type}}</span>
-          </core-toolbar>
+        <core-header-panel mode="scroll" flex>
           <div class="content" horizontal layout center-justified>
             <div vertical layout>
-
-
+              <div class="proxy-toolbar" id="toolbar{{proxy.id}}" horizontal layout center>
+                <core-icon icon="dns"></core-icon>
+                <span flex center>{{proxy.val.address}}</span>
+                <span>{{proxy.val.type}}</span>
+              </div>
+              <base-card>
+                <core-toolbar class="card-tool">
+                  <core-icon icon="info-outline"></core-icon>
+                  <span flex>General Info</span>
+                </core-toolbar>
+                <div class="card-content">
+                  <section flex horizontal wrap layout>
+                    <template repeat="{{info in infos}}">
+                      <core-item class="info-item" label="{{info.label}}" icon="{{info.icon}}"flex auto>
+                        <span class="info-val"> {{info.val}}</span>
+                      </core-item>
+                    </template>
+                  </section>
+                </div>
+              </base-card>
               <base-card class="chart-card">
                 <core-toolbar class="card-tool">
                   <core-icon icon="trending-up"></core-icon>
@@ -28,12 +41,10 @@
                   <chart-js id="line-chart{{proxy.id}}" dataLimit="10" initData="{{lineChartInitData}}" chartType="line"></chart-js>
                 </div>
               </base-card class="chart-card">
-
-
               <base-card class="chart-card">
                 <core-toolbar class="card-tool">
                   <core-icon icon="trending-up"></core-icon>
-                  <paper-dropdown-menu label="Select snapshot">
+                  <paper-dropdown-menu>
                     <paper-dropdown class="dropdown">
                       <core-menu id="metric-sel" selected="{{metrics.selected}}" valueattr="value" class="menu" on-core-select="{{changeBarMetric()}}">
                         <template repeat="{{option in metrics.options}}">
@@ -41,7 +52,8 @@
                         </template>
                       </core-menu>
                     </paper-dropdown>
-                  </paper-dropdown-menu>                </core-toolbar>
+                  </paper-dropdown-menu>
+                </core-toolbar>
                 <div class="card-content">
                   <chart-js id="bar-chart{{proxy.id}}" initData="{{barChartInitData}}" chartType="bar"></chart-js>
                 </div>
