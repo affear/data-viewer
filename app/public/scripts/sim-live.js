@@ -6,6 +6,12 @@ document.querySelector('#live-template').addEventListener('template-bound', func
     var no_running_msg = document.querySelector('#no-running-msg');
     var paper_spinner = document.querySelector('#loader');
 
+    // Color rgbs
+    var cpu_color = "rgba(65, 174, 93, 1)";
+    var ram_color = "rgba(62, 83, 175, 1)";
+    var disk_color = "rgba(244, 67, 54, 1)";
+    var cmps_color = "rgba(255, 191, 66, 1)";
+
     // Firebase root references
     var bifrost = new Firebase('https://bifrost.firebaseio.com');
     var running_ref = bifrost.child('running');
@@ -17,7 +23,19 @@ document.querySelector('#live-template').addEventListener('template-bound', func
     template.stats = [];
     template.infos = [];
     template.architectures = [];
-    template.metrics = {};
+    template.metrics = {
+        selected: 'r_vcpus',
+        options: [{
+            name: 'Cpu',
+            id: 'r_vcpus'
+        }, {
+            name: 'RAM',
+            id: 'r_memory_mb'
+        }, {
+            name: 'Disk',
+            id: 'r_local_gb'
+        }]
+    }
     template.progress = {
         current: 0,
         max: 100
@@ -73,8 +91,8 @@ document.querySelector('#live-template').addEventListener('template-bound', func
 
                 _update_infos(last_sim_ref, new_proxy);
 
-                initLineCharts();
-                initBarCharts(new_proxy.val.architecture);
+                _initLineCharts();
+                _initBarCharts(new_proxy.val.architecture);
 
                 // This is shit: check when the template renders the chart
                 var checkExist = setTimeout(function() {
@@ -233,9 +251,10 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                     []
                 ];
                 for (var i = 0; i < cmps.length; i++) {
-                    new_data[0].push(cmps[i].r_memory_mb * 100);
+                    console.log(cmps[i].r_memory_mb)
+                    new_data[0].push(Math.random() * 100);
                 };
-                new_proxy_bar_chart.update(new_data);
+                bar_chart.update(new_data);
             });
         })
     }
@@ -244,58 +263,46 @@ document.querySelector('#live-template').addEventListener('template-bound', func
     /*
     Sets the dataset configurations for the line chart with data-binding
     */
-    var initLineCharts = function() {
+    var _initLineCharts = function() {
         template.lineChartInitData = {
             datasets: [{
                 label: "avg_r_local_gb",
                 fillColor: "rgba(244, 67, 54, 0.2)",
-                strokeColor: "rgba(244, 67, 54, 1)",
-                pointColor: "rgba(244, 67, 54, 1)",
+                strokeColor: disk_color,
+                pointColor: disk_color,
                 pointStrokeColor: "#fff",
                 pointHighlightFill: "#fff",
-                pointHighlightStroke: "rgba(244, 67, 54, 1)",
+                pointHighlightStroke: disk_color,
             }, {
                 label: "avg_r_memory_mb",
                 fillColor: "rgba(62, 83, 175, 0.2)",
-                strokeColor: "rgba(62, 83, 175, 1)",
-                pointColor: "rgba(62, 83, 175, 1)",
+                strokeColor: ram_color,
+                pointColor: ram_color,
                 pointStrokeColor: "#fff",
                 pointHighlightFill: "#fff",
-                pointHighlightStroke: "rgba(62, 83, 175, 1)",
+                pointHighlightStroke: ram_color,
             }, {
                 label: "avg_r_vcpus",
                 fillColor: "rgba(65, 174, 93, 0.2)",
-                strokeColor: "rgba(65, 174, 93, 1)",
-                pointColor: "rgba(65, 174, 93, 1)",
+                strokeColor: cpu_color,
+                pointColor: cpu_color,
                 pointStrokeColor: "#fff",
                 pointHighlightFill: "#fff",
-                pointHighlightStroke: "rgba(65, 174, 93, 1)",
+                pointHighlightStroke: cpu_color,
             }, {
                 label: "cmps",
                 fillColor: "rgba(255, 191, 66, 0.2)",
-                strokeColor: "rgba(255, 191, 66, 1)",
-                pointColor: "rgba(255, 191, 66, 1)",
+                strokeColor: cmps_color,
+                pointColor: cmps_color,
                 pointStrokeColor: "#fff",
                 pointHighlightFill: "#fff",
-                pointHighlightStroke: "rgba(255, 191, 66, 1)",
+                pointHighlightStroke: cmps_color,
             }, ]
         };
     }
 
-    var initBarCharts = function(architecture) {
-        template.metrics = {
-            selected: 'r_vcpus',
-            options: [{
-                name: 'Cpu',
-                id: 'r_vcpus'
-            }, {
-                name: 'RAM',
-                id: 'r_memory_mb'
-            }, {
-                name: 'Disk',
-                id: 'r_local_gb'
-            }]
-        }
+    var _initBarCharts = function(architecture) {
+
         template.no_cmps = architecture.length;
         template.barChartInitData = {};
         template.barChartInitData.labels = [];
@@ -309,11 +316,12 @@ document.querySelector('#live-template').addEventListener('template-bound', func
             data: default_data,
             label: "avg_r_local_gb",
             fillColor: "rgba(244, 67, 54, 0.2)",
-            strokeColor: "rgba(244, 67, 54, 1)",
-            pointColor: "rgba(244, 67, 54, 1)",
+            strokeColor: disk_color,
+            pointColor: disk_color,
             pointStrokeColor: "#fff",
             pointHighlightFill: "#fff",
             pointHighlightStroke: "rgba(244, 67, 54, 1)",
         }];
     }
+    
 });
