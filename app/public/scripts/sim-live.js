@@ -16,6 +16,11 @@ document.querySelector('#live-template').addEventListener('template-bound', func
     template.proxies = [];
     template.stats = [];
     template.infos = [];
+    template.architectures = [];
+    template.progress = {
+        current: 0,
+        max: 100
+    }
 
     // Chart configurations
     Chart.defaults.global.animationSteps = 20;
@@ -57,6 +62,7 @@ document.querySelector('#live-template').addEventListener('template-bound', func
             var last_sim_proxies_ref = last_sim_ref.child('proxies');
 
             _update_infos(last_sim_ref);
+
             // _update_stats();
 
             // FIREBASE: get added proxy values
@@ -66,6 +72,9 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                     val: data.val()
                 }
 
+                console.log(new_proxy)
+
+                // _update_architecture(new_proxy);
                 initLineCharts();
 
                 template.proxies.push(new_proxy);
@@ -114,21 +123,28 @@ document.querySelector('#live-template').addEventListener('template-bound', func
 
         no_create_ref.on('value', function (data) {
             template.infos[0].val = data.val();
+            incr_progress();
         });
         no_destroy_ref.on('value', function (data) {
             template.infos[1].val = data.val();
+            incr_progress();
         });
         no_resize_ref.on('value', function (data) {
             template.infos[2].val = data.val();
+            incr_progress();
         });
         no_steps_ref.on('value', function (data) {
             template.infos[3].val = data.val();
+            template.progress.max = data.val();
         });
         start_ref.on('value', function (data) {
             template.infos[4].val = data.val();
         });
-    }
 
+        var incr_progress = function () {
+            template.progress.current = template.infos[0].val + template.infos[1].val + template.infos[2].val;
+        }
+    }
 
     /*
     Updates the statitistic card

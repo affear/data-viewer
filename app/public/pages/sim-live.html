@@ -9,14 +9,18 @@
     </div>
     <div id="sim-live" horizontal layout wrap>
       <template repeat="{{proxy in proxies}}">
-        <core-header-panel mode="scroll" flex>
+        <core-header-panel mode="seamed" flex>
+          <div class="proxy-toolbar core-header" id="toolbar{{proxy.id}}">
+            <div horizontal layout center id="proxy-toolbar-top">
+              <core-icon icon="dns"></core-icon>
+              <span flex center>{{proxy.val.address}}</span>
+              <span>{{proxy.val.type}}</span>
+            </div>
+            <paper-progress class="red" value="{{progress.current}}" max="{{progress.max}}"></paper-progress>
+          </div>
+
           <div class="content" horizontal layout center-justified>
             <div vertical layout>
-              <div class="proxy-toolbar" id="toolbar{{proxy.id}}" horizontal layout center>
-                <core-icon icon="dns"></core-icon>
-                <span flex center>{{proxy.val.address}}</span>
-                <span>{{proxy.val.type}}</span>
-              </div>
               <base-card>
                 <core-toolbar class="card-tool">
                   <core-icon icon="info-outline"></core-icon>
@@ -25,7 +29,7 @@
                 <div class="card-content">
                   <section flex horizontal wrap layout>
                     <template repeat="{{info in infos}}">
-                      <core-item class="info-item" label="{{info.label}}" icon="{{info.icon}}"flex auto>
+                      <core-item class="info-item" label="{{info.label}}" icon="{{info.icon}}" flex auto>
                         <span class="info-val"> {{info.val}}</span>
                       </core-item>
                     </template>
@@ -58,6 +62,35 @@
                   <chart-js id="bar-chart{{proxy.id}}" initData="{{barChartInitData}}" chartType="bar"></chart-js>
                 </div>
               </base-card class="chart-card">
+              <base-card>
+                <core-toolbar class="card-tool">
+                  <core-icon icon="info-outline"></core-icon>
+                  <span flex>Architecture</span>
+                </core-toolbar>
+                <div class="card-content">
+                  <section flex horizontal wrap layout>
+                    <template repeat="{{cmp in proxy.val.architecture}}">
+                      <div class="cmp-info" layout vertical>
+                        <core-item class="cmp-info-item font-scalable small" icon="dns" flex auto>
+                          <span class="cmp-info-val">{{cmp.hostname}}</span>
+                        </core-item>
+                        <core-item class="cmp-info-item font-scalable small" label="Ip:" flex auto>
+                          <span class="cmp-info-val">{{cmp.address}}</span>
+                        </core-item>
+                        <core-item class="cmp-info-item font-scalable small" label="Vcpus:" flex auto>
+                          <span class="cmp-info-val">{{cmp.vcpus}}</span>
+                        </core-item>
+                        <core-item class="cmp-info-item font-scalable small" label="Disk:" flex auto>
+                          <span class="cmp-info-val">{{cmp.local_gb}}</span>
+                        </core-item>
+                        <core-item class="cmp-info-item font-scalable small" label="Ram:" flex auto>
+                          <span class="cmp-info-val">{{cmp.memory_mb}}</span>
+                        </core-item>
+                      </div>
+                    </template>
+                  </section>
+                </div>
+              </base-card>
             </div>
           </div>
         </core-header-panel>
