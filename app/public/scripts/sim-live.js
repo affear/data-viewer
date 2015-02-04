@@ -5,6 +5,7 @@ document.querySelector('#live-template').addEventListener('template-bound', func
     var sim_live = document.querySelector('#sim-live');
     var no_running_msg = document.querySelector('#no-running-msg');
     var paper_spinner = document.querySelector('#loader');
+    var metric_dropdown = document.querySelector('#metric-dropdown');
 
     // Color rgbs
     var cpu_color = "rgba(65, 174, 93, 1)";
@@ -25,21 +26,7 @@ document.querySelector('#live-template').addEventListener('template-bound', func
     // Template data-binding
     template.proxies = [];
     template.stats = [];
-    template.infos = [];
     template.architectures = [];
-    template.metrics = {
-        selected: 'r_vcpus',
-        options: [{
-            name: 'Cpu',
-            id: 'r_vcpus'
-        }, {
-            name: 'RAM',
-            id: 'r_memory_mb'
-        }, {
-            name: 'Disk',
-            id: 'r_local_gb'
-        }]
-    }
     template.progress = {
         current: 0,
         max: 100
@@ -89,7 +76,21 @@ document.querySelector('#live-template').addEventListener('template-bound', func
 
                 var new_proxy = {
                     id: data.key(),
-                    val: data.val()
+                    val: data.val(),
+                    metrics: {
+                        selected: 'r_vcpus',
+                        options: [{
+                            name: 'Cpu',
+                            id: 'r_vcpus'
+                        }, {
+                            name: 'RAM',
+                            id: 'r_memory_mb'
+                        }, {
+                            name: 'Disk',
+                            id: 'r_local_gb'
+                        }]
+                    },
+                    infos: []
                 }
                 template.proxies.push(new_proxy);
 
@@ -120,8 +121,9 @@ document.querySelector('#live-template').addEventListener('template-bound', func
     Updates the infos card
     */
     function _update_infos(last_sim_ref, proxy) {
+        console.log(proxy)
 
-        template.infos = [{
+        template.proxies[proxy.id].infos = [{
             label: 'Create',
             val: 0,
             icon: 'add-circle-outline'
@@ -177,19 +179,19 @@ document.querySelector('#live-template').addEventListener('template-bound', func
         var no_failures_ref = proxy_ref.child('no_failures_ref');
 
         no_create_ref.on('value', function(data) {
-            template.infos[0].val = data.val();
+            template.proxies[proxy.id].infos[0].val = data.val();
             incr_progress();
         });
         no_destroy_ref.on('value', function(data) {
-            template.infos[1].val = data.val();
+            template.proxies[proxy.id].infos[1].val = data.val();
             incr_progress();
         });
         no_resize_ref.on('value', function(data) {
-            template.infos[2].val = data.val();
+            template.proxies[proxy.id].infos[2].val = data.val();
             incr_progress();
         });
         no_steps_ref.on('value', function(data) {
-            template.infos[3].val = data.val();
+            template.proxies[proxy.id].infos[3].val = data.val();
             template.progress.max = data.val();
         });
         start_ref.on('value', function(data) {
@@ -200,27 +202,27 @@ document.querySelector('#live-template').addEventListener('template-bound', func
             var year = start_date.getFullYear();
             var month = start_date.getMonth() + 1; // Months start with 0
             var day = start_date.getDate();
-            template.infos[4].val = day + "-" + month + "-" + year + " " + hour + ":" + minutes + ":" + seconds;
+            template.proxies[proxy.id].infos[4].val = day + "-" + month + "-" + year + " " + hour + ":" + minutes + ":" + seconds;
         });
         aggr_no_active_cmps_ref.on('value', function(data) {
-            template.infos[5].val = parseFloat(data.val()).toFixed(3);
+            template.proxies[proxy.id].infos[5].val = parseFloat(data.val()).toFixed(3);
         })
         aggr_r_local_gb_ref.on('value', function(data) {
-            template.infos[6].val = parseFloat(data.val() * 100).toFixed(3);
+            template.proxies[proxy.id].infos[6].val = parseFloat(data.val() * 100).toFixed(3);
         })
         aggr_r_memory_mb_ref.on('value', function(data) {
-            template.infos[7].val = parseFloat(data.val() * 100).toFixed(3);
+            template.proxies[proxy.id].infos[7].val = parseFloat(data.val() * 100).toFixed(3);
         })
         aggr_r_vcpus_ref.on('value', function(data) {
-            template.infos[8].val = parseFloat(data.val() * 100).toFixed(3);
+            template.proxies[proxy.id].infos[8].val = parseFloat(data.val() * 100).toFixed(3);
         })
         no_failures_ref.on('value', function(data) {
-            template.infos[9].val = data.val() * 100;
+            template.proxies[proxy.id].infos[9].val = data.val() * 100;
         })
 
 
         var incr_progress = function() {
-            template.progress.current = template.infos[0].val + template.infos[1].val + template.infos[2].val;
+            template.progress.current = template.proxies[proxy.id].infos[0].val + template.proxies[proxy.id].infos[1].val + template.proxies[proxy.id].infos[2].val;
         }
     }
 
@@ -235,7 +237,7 @@ document.querySelector('#live-template').addEventListener('template-bound', func
             new_proxy_snapshots_ref.orderByKey().startAt((no_runned_steps - 10).toString()).on('child_added', function(data) {
                 var new_snapshot = {
                     id: data.key(),
-                    val: data.val()
+                    val: data.val(),
                 }
 
                 // Get data
@@ -255,19 +257,16 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                 ];
                 for (var i = 0; i < cmps.length; i++) {
                     // Display selected metric
-                    switch (template.metrics.selected) {
+                    switch (template.proxies[proxy.id].metrics.selected) {
                         case "r_local_gb":
-                            console.log("r_local_gb");
                             new_data[0].push(Math.random() * 100);
                             bar_chart.changeColor(0, disk_color, disk_color_transparent);
                             break;
                         case "r_vcpus":
-                            console.log("r_vcpus");
                             new_data[0].push(Math.random() * 100);
                             bar_chart.changeColor(0, cpu_color, cpu_color_transparent);
                             break;
                         case "r_memory_mb":
-                            console.log("r_memory_mb");
                             new_data[0].push(Math.random() * 100);
                             bar_chart.changeColor(0, ram_color, ram_color_transparent);
                             break;
