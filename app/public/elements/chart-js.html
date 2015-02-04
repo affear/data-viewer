@@ -65,7 +65,7 @@
               break;
           }
         },
-        
+
         // Add new data to the chart; must provide an array with a value for every dataset of the chart
         // and a new label otherwise skip
         addData: function(newValues, newLabel) {
@@ -88,6 +88,21 @@
             };
             this.chart.update();
           }
+        },
+
+        changeColor: function(dataset_id, strokeColor, fillColor) {
+          for (var i = 0; i < this.chart.datasets[dataset_id].bars.length; i++) {
+            this.chart.datasets[dataset_id].bars[i].fillColor = fillColor;
+            this.chart.datasets[dataset_id].bars[i].strokeColor = strokeColor;
+            this.chart.datasets[dataset_id].bars[i].pointColor = strokeColor;
+            this.chart.datasets[dataset_id].bars[i].highlightFill = fillColor;
+            this.chart.datasets[dataset_id].bars[i].highlightStroke = strokeColor;
+            this.chart.datasets[dataset_id].bars[i].pointHighlightStroke = strokeColor;
+          };
+          this.chart.datasets[dataset_id].fillColor = fillColor;
+          this.chart.datasets[dataset_id].strokeColor = strokeColor;
+          console.log(this.chart);
+          this.chart.update();
         }
       },
     });
