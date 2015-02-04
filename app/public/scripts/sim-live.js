@@ -8,9 +8,13 @@ document.querySelector('#live-template').addEventListener('template-bound', func
 
     // Color rgbs
     var cpu_color = "rgba(65, 174, 93, 1)";
+    var cpu_color_transparent = "rgba(65, 174, 93, 0.2)";
     var ram_color = "rgba(62, 83, 175, 1)";
+    var ram_color_transparent = "rgba(62, 83, 175, 0.2)";
     var disk_color = "rgba(244, 67, 54, 1)";
+    var disk_color_transparent = "rgba(244, 67, 54, 0.2)";
     var cmps_color = "rgba(255, 191, 66, 1)";
+    var cmps_color_transparent = "rgba(255, 191, 66, 0.2)";
 
     // Firebase root references
     var bifrost = new Firebase('https://bifrost.firebaseio.com');
@@ -241,7 +245,6 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                 var no_active_cmps = new_snapshot.val.no_active_cmps;
                 var command = new_snapshot.val.command;
 
-
                 // Add to the chart
                 line_chart.addData([avg_r_local_gb, avg_r_memory_mb, avg_r_vcpus, no_active_cmps], new_snapshot.id + ': ' + new_snapshot.val.command);
 
@@ -251,8 +254,24 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                     []
                 ];
                 for (var i = 0; i < cmps.length; i++) {
-                    console.log(cmps[i].r_memory_mb)
-                    new_data[0].push(Math.random() * 100);
+                    // Display selected metric
+                    switch (template.metrics.selected) {
+                        case "r_local_gb":
+                            console.log("r_local_gb");
+                            new_data[0].push(Math.random() * 100);
+                            bar_chart.changeColor(0, disk_color, disk_color_transparent);
+                            break;
+                        case "r_vcpus":
+                            console.log("r_vcpus");
+                            new_data[0].push(Math.random() * 100);
+                            bar_chart.changeColor(0, cpu_color, cpu_color_transparent);
+                            break;
+                        case "r_memory_mb":
+                            console.log("r_memory_mb");
+                            new_data[0].push(Math.random() * 100);
+                            bar_chart.changeColor(0, ram_color, ram_color_transparent);
+                            break;
+                    }
                 };
                 bar_chart.update(new_data);
             });
@@ -275,7 +294,7 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                 pointHighlightStroke: disk_color,
             }, {
                 label: "avg_r_memory_mb",
-                fillColor: "rgba(62, 83, 175, 0.2)",
+                fillColor: ram_color_transparent,
                 strokeColor: ram_color,
                 pointColor: ram_color,
                 pointStrokeColor: "#fff",
@@ -283,7 +302,7 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                 pointHighlightStroke: ram_color,
             }, {
                 label: "avg_r_vcpus",
-                fillColor: "rgba(65, 174, 93, 0.2)",
+                fillColor: cpu_color_transparent,
                 strokeColor: cpu_color,
                 pointColor: cpu_color,
                 pointStrokeColor: "#fff",
@@ -291,7 +310,7 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                 pointHighlightStroke: cpu_color,
             }, {
                 label: "cmps",
-                fillColor: "rgba(255, 191, 66, 0.2)",
+                fillColor: cmps_color_transparent,
                 strokeColor: cmps_color,
                 pointColor: cmps_color,
                 pointStrokeColor: "#fff",
@@ -314,14 +333,13 @@ document.querySelector('#live-template').addEventListener('template-bound', func
         }
         template.barChartInitData.datasets = [{
             data: default_data,
-            label: "avg_r_local_gb",
-            fillColor: "rgba(244, 67, 54, 0.2)",
-            strokeColor: disk_color,
-            pointColor: disk_color,
+            label: "avg_r_vcups",
+            fillColor: cpu_color_transparent,
+            strokeColor: cpu_color,
+            pointColor: cpu_color,
             pointStrokeColor: "#fff",
             pointHighlightFill: "#fff",
-            pointHighlightStroke: "rgba(244, 67, 54, 1)",
+            pointHighlightStroke: cpu_color,
         }];
     }
-    
 });

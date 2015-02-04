@@ -67,7 +67,7 @@
                 <core-toolbar class="card-tool">
                   <core-icon icon="trending-up"></core-icon>
                   <paper-dropdown-menu>
-                    <paper-dropdown class="dropdown">
+                    <paper-dropdown class="dropdown" id="metric-dropdown">
                       <core-menu id="metric-sel" selected="{{metrics.selected}}" valueattr="value" class="menu" on-core-select="{{changeBarMetric()}}">
                         <template repeat="{{option in metrics.options}}">
                           <paper-item value="{{option.id}}">{{option.name}}</paper-item>
