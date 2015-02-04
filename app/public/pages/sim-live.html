@@ -24,13 +24,13 @@
               <base-card>
                 <core-toolbar class="card-tool">
                   <core-icon icon="info-outline"></core-icon>
-                  <span flex>General Info</span>
+                  <span flex>Info</span>
                 </core-toolbar>
                 <div class="card-content">
                   <section flex horizontal wrap layout>
                     <template repeat="{{info in infos}}">
                       <core-item class="info-item" label="{{info.label}}" icon="{{info.icon}}" flex auto>
-                        <span class="info-val"> {{info.val}}</span>
+                        <span class="info-val">{{info.val}}</span>
                       </core-item>
                     </template>
                   </section>
