@@ -35,11 +35,6 @@ document.querySelector('#live-template').addEventListener('template-bound', func
 
         if (running) {
             console.log('Simulation is running');
-            // Show sim
-            paper_spinner.style.display = 'none'
-            sim_live.style.display = 'flex';
-            no_running_msg.style.display = 'none';
-
             _showRunningSim();
         } else {
             console.log('No simulation is running');
@@ -61,31 +56,30 @@ document.querySelector('#live-template').addEventListener('template-bound', func
             var last_sim_ref = bifrost.child('sims/' + last_sim_id);
             var last_sim_proxies_ref = last_sim_ref.child('proxies');
 
-            _update_infos(last_sim_ref);
-
-            // _update_stats();
-
             // FIREBASE: get added proxy values
             last_sim_proxies_ref.on('child_added', function(data) {
+
+                // Show sim
+                paper_spinner.style.display = 'none'
+                sim_live.style.display = 'flex';
+                no_running_msg.style.display = 'none';
+
                 var new_proxy = {
                     id: data.key(),
                     val: data.val()
                 }
-
-                console.log(new_proxy)
-
-                // _update_architecture(new_proxy);
-                initLineCharts();
-
                 template.proxies.push(new_proxy);
+
+                _update_infos(last_sim_ref, new_proxy);
+
+                initLineCharts();
 
                 // This is shit: check when the template renders the chart
                 var checkExist = setTimeout(function() {
                     var new_proxy_line_chart = document.querySelector('#line-chart' + new_proxy.id);
                     var new_proxy_bar_chart = document.querySelector('#bar-chart' + new_proxy.id);
-                    var new_proxy_toolbar = document.querySelector('#toolbar' + new_proxy.id);
 
-                    if (new_proxy_line_chart && new_proxy_bar_chart && new_proxy_toolbar) {
+                    if (new_proxy_line_chart && new_proxy_bar_chart) {
                         initBarCharts(new_proxy.val.architecture);
                         initDropDown();
                         _update_chart(new_proxy_line_chart, new_proxy_bar_chart);
@@ -105,15 +99,49 @@ document.querySelector('#live-template').addEventListener('template-bound', func
     /*
     Updates the infos card
     */
-    function _update_infos (last_sim_ref) {
+    function _update_infos(last_sim_ref, proxy) {
 
-        template.infos = [
-            {label: 'Create', val: 0, icon: 'add-circle-outline'},
-            {label: 'Destroy', val: 0, icon: 'remove-circle-outline'},
-            {label: 'Resize', val: 0, icon: 'aspect-ratio'},
-            {label: 'Steps', val: 0, icon: 'more-horiz'},
-            {label: 'Start time', val: '', icon: 'device:access-time'},
-        ];
+        template.infos = [{
+            label: 'Create',
+            val: 0,
+            icon: 'add-circle-outline'
+        }, {
+            label: 'Destroy',
+            val: 0,
+            icon: 'remove-circle-outline'
+        }, {
+            label: 'Resize',
+            val: 0,
+            icon: 'aspect-ratio'
+        }, {
+            label: 'Steps',
+            val: 0,
+            icon: 'more-horiz'
+        }, {
+            label: 'Start time',
+            val: 0,
+            icon: 'device:access-time'
+        }, {
+            label: 'Avg active cmps',
+            val: 0,
+            icon: 'dns'
+        }, {
+            label: 'Avg disk (GB)',
+            val: 0,
+            icon: 'device:data-usage'
+        }, {
+            label: 'Avg memory (MB)',
+            val: 0,
+            icon: 'hardware:memory'
+        }, {
+            label: 'Avg vcpus',
+            val: 0,
+            icon: 'hardware:memory'
+        }, {
+            label: 'Failures',
+            val: 0,
+            icon: 'error'
+        }];
 
         var no_create_ref = last_sim_ref.child('no_create');
         var no_destroy_ref = last_sim_ref.child('no_destroy');
@@ -121,45 +149,59 @@ document.querySelector('#live-template').addEventListener('template-bound', func
         var no_steps_ref = last_sim_ref.child('steps');
         var start_ref = last_sim_ref.child('start');
 
-        no_create_ref.on('value', function (data) {
+        var proxy_ref = last_sim_ref.child('proxies/' + proxy.id);
+        var aggr_no_active_cmps_ref = proxy_ref.child('aggr_no_active_cmps');
+        var aggr_r_local_gb_ref = proxy_ref.child('aggr_r_local_gb');
+        var aggr_r_memory_mb_ref = proxy_ref.child('aggr_r_memory_mb');
+        var aggr_r_vcpus_ref = proxy_ref.child('aggr_r_vcpus');
+        var no_failures_ref = proxy_ref.child('no_failures_ref');
+
+        no_create_ref.on('value', function(data) {
             template.infos[0].val = data.val();
             incr_progress();
         });
-        no_destroy_ref.on('value', function (data) {
+        no_destroy_ref.on('value', function(data) {
             template.infos[1].val = data.val();
             incr_progress();
         });
-        no_resize_ref.on('value', function (data) {
+        no_resize_ref.on('value', function(data) {
             template.infos[2].val = data.val();
             incr_progress();
         });
-        no_steps_ref.on('value', function (data) {
+        no_steps_ref.on('value', function(data) {
             template.infos[3].val = data.val();
             template.progress.max = data.val();
         });
-        start_ref.on('value', function (data) {
-            template.infos[4].val = data.val();
+        start_ref.on('value', function(data) {
+            var start_date = new Date(data.val())
+            var seconds = start_date.getSeconds();
+            var minutes = start_date.getMinutes();
+            var hour = start_date.getHours();
+            var year = start_date.getFullYear();
+            var month = start_date.getMonth() + 1; // Months start with 0
+            var day = start_date.getDate();
+            template.infos[4].val = day + "-" + month + "-" + year + " " + hour + ":" + minutes + ":" + seconds;
         });
+        aggr_no_active_cmps_ref.on('value', function(data) {
+            template.infos[5].val = parseFloat(data.val()).toFixed(3);
+        })
+        aggr_r_local_gb_ref.on('value', function(data) {
+            template.infos[6].val = parseFloat(data.val() * 100).toFixed(3);
+        })
+        aggr_r_memory_mb_ref.on('value', function(data) {
+            template.infos[7].val = parseFloat(data.val() * 100).toFixed(3);
+        })
+        aggr_r_vcpus_ref.on('value', function(data) {
+            template.infos[8].val = parseFloat(data.val() * 100).toFixed(3);
+        })
+        no_failures_ref.on('value', function(data) {
+            template.infos[9].val = data.val() * 100;
+        })
 
-        var incr_progress = function () {
+
+        var incr_progress = function() {
             template.progress.current = template.infos[0].val + template.infos[1].val + template.infos[2].val;
         }
-    }
-
-    /*
-    Updates the statitistic card
-    */
-    function _update_stats(last_sim_proxies_ref, proxy) {
-        var proxy_ref = last_sim_proxies_ref.child(proxy.id);
-
-        proxy_ref.on('value', function(data) {
-            proxy = data.val();
-            template.stats = [];
-            template.stats.push({
-                title: 'aggr_r_local_gb',
-                value: proxy.aggr_r_local_gb
-            })
-        });
     }
 
     // SNAPSHOTS
@@ -200,7 +242,6 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                     new_data[0].push(cmps[i].r_memory_mb * 100);
                 };
                 new_proxy_bar_chart.update(new_data);
-
             });
         })
     }
