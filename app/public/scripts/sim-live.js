@@ -17,6 +17,7 @@ document.querySelector('#live-template').addEventListener('template-bound', func
     template.stats = [];
     template.infos = [];
     template.architectures = [];
+    template.metrics = {};
     template.progress = {
         current: 0,
         max: 100
@@ -73,6 +74,7 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                 _update_infos(last_sim_ref, new_proxy);
 
                 initLineCharts();
+                initBarCharts(new_proxy.val.architecture);
 
                 // This is shit: check when the template renders the chart
                 var checkExist = setTimeout(function() {
@@ -80,11 +82,7 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                     var new_proxy_bar_chart = document.querySelector('#bar-chart' + new_proxy.id);
 
                     if (new_proxy_line_chart && new_proxy_bar_chart) {
-                        initBarCharts(new_proxy.val.architecture);
-                        initDropDown();
-                        _update_chart(new_proxy_line_chart, new_proxy_bar_chart);
-                        console.log(last_sim_proxies_ref);
-                        _update_stats(last_sim_proxies_ref, new_proxy);
+                        _update_chart(last_sim_id, new_proxy, new_proxy_line_chart, new_proxy_bar_chart);
                         clearInterval(checkExist);
                     }
                 }, 100);
@@ -205,10 +203,10 @@ document.querySelector('#live-template').addEventListener('template-bound', func
     }
 
     // SNAPSHOTS
-    function _update_chart(line_chart, bar_chart) {
-        // Updating Sanpshots
-        var snapshot_count = 0;
-        new_proxy_snapshots_ref = last_sim_proxies_ref.child(new_proxy.id + '/snapshots');
+    function _update_chart(last_sim_id, proxy, line_chart, bar_chart) {
+        new_proxy_snapshots_ref = sims_ref.child(last_sim_id + "/proxies/" + proxy.id + '/snapshots');
+
+        // Get the runned snapshot and start to update the charts
         new_proxy_snapshots_ref.once('value', function(data) {
             // Start reading steps the last minus 10
             var no_runned_steps = data.numChildren();
@@ -218,20 +216,16 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                     val: data.val()
                 }
 
-                var new_proxy_line_chart = line_chart;
-                var new_proxy_bar_chart = bar_chart;
-                var command = new_snapshot.val.command;
-
-                // LINE CHART
                 // Get data
-                var avg_r_local_gb = new_snapshot.val.avg_r_local_gb * 100;
-                var avg_r_memory_mb = new_snapshot.val.avg_r_memory_mb * 100;
-                var avg_r_vcpus = new_snapshot.val.avg_r_vcpus * 100;
+                var avg_r_local_gb = parseFloat(new_snapshot.val.avg_r_local_gb * 100).toFixed(3);
+                var avg_r_memory_mb = parseFloat(new_snapshot.val.avg_r_memory_mb * 100).toFixed(3);;
+                var avg_r_vcpus = parseFloat(new_snapshot.val.avg_r_vcpus * 100).toFixed(3);;
                 var no_active_cmps = new_snapshot.val.no_active_cmps;
+                var command = new_snapshot.val.command;
 
 
                 // Add to the chart
-                new_proxy_line_chart.addData([avg_r_local_gb, avg_r_memory_mb, avg_r_vcpus, no_active_cmps], new_snapshot.id + ': ' + new_snapshot.val.command);
+                line_chart.addData([avg_r_local_gb, avg_r_memory_mb, avg_r_vcpus, no_active_cmps], new_snapshot.id + ': ' + new_snapshot.val.command);
 
                 // BAR CHART
                 var cmps = new_snapshot.val.cmps;
@@ -289,6 +283,19 @@ document.querySelector('#live-template').addEventListener('template-bound', func
     }
 
     var initBarCharts = function(architecture) {
+        template.metrics = {
+            selected: 'r_vcpus',
+            options: [{
+                name: 'Cpu',
+                id: 'r_vcpus'
+            }, {
+                name: 'RAM',
+                id: 'r_memory_mb'
+            }, {
+                name: 'Disk',
+                id: 'r_local_gb'
+            }]
+        }
         template.no_cmps = architecture.length;
         template.barChartInitData = {};
         template.barChartInitData.labels = [];
@@ -308,25 +315,5 @@ document.querySelector('#live-template').addEventListener('template-bound', func
             pointHighlightFill: "#fff",
             pointHighlightStroke: "rgba(244, 67, 54, 1)",
         }];
-    }
-
-    var initDropDown = function() {
-        document.querySelector('#metric-sel').addEventListener('core-select', function(event) {
-            console.log(event.detail);
-        });
-    }
-
-    template.metrics = {
-        selected: 'r_vcpus',
-        options: [{
-            name: 'Cpu',
-            id: 'r_vcpus'
-        }, {
-            name: 'RAM',
-            id: 'r_memory_mb'
-        }, {
-            name: 'Disk',
-            id: 'r_local_gb'
-        }]
     }
 });

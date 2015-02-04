@@ -43,6 +43,24 @@
                 </core-toolbar>
                 <div class="card-content">
                   <chart-js id="line-chart{{proxy.id}}" dataLimit="10" initData="{{lineChartInitData}}" chartType="line"></chart-js>
+                  <div id="line-legend" layout horizontal center>
+                    <div class="line-legend-item disk" layout horizontal center flex>
+                      <div class="color-box disk"></div>
+                      <span>Disk %</span>
+                    </div>
+                    <div class="line-legend-item ram" layout horizontal center flex>
+                      <div class="color-box ram"></div>
+                      <span>RAM %</span>
+                    </div>
+                    <div class="line-legend-item cpu" layout horizontal center flex>
+                      <div class="color-box cpu"></div>
+                      <span>CPU %</span>
+                    </div>
+                    <div class="line-legend-item active_cmps" layout horizontal center flex>
+                      <div class="color-box active_cmps"></div>
+                      <span>Active cmps %</span>
+                    </div>
+                  </div>
                 </div>
               </base-card class="chart-card">
               <base-card class="chart-card">

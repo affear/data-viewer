@@ -173,3 +173,40 @@ paper-dropdown-menu {
     text-align: center;
     margin: 20px;
 }
+/*Line Legend*/
+
+#line-legend {
+    margin: 20px;
+}
+.line-legend-item {
+    font-size: 1rem;
+}
+.color-box {
+    width: 15px;
+    height: 15px;
+    margin-right: 5px;
+}
+.color-box.cpu {
+    background-color: rgba(65, 174, 93, 1);
+}
+.color-box.ram {
+    background-color: rgba(62, 83, 175, 1);
+}
+.color-box.disk {
+    background-color: rgba(244, 67, 54, 1);
+}
+.color-box.active_cmps {
+    background-color: rgba(255, 191, 66, 1);
+}
+.line-legend-item.cpu {
+    color: rgba(65, 174, 93, 1);
+}
+.line-legend-item.ram {
+    color: color: rgba(62, 83, 175, 1);
+}
+.line-legend-item.disk {
+    color: rgba(244, 67, 54, 1);
+}
+.line-legend-item.active_cmps {
+    color: rgba(255, 191, 66, 1);
+}
