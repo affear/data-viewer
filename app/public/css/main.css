@@ -156,6 +156,7 @@ paper-dropdown-menu {
     margin: 2px;
     width: 125px;
     font-size: 0.8rem;
+    padding: 0.6em;
 }
 
 .cmp-info-val {
