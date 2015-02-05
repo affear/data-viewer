@@ -190,7 +190,8 @@ document.querySelector('#live-template').addEventListener('template-bound', func
         });
 
         var incr_progress = function() {
-            template.progress.current = template.generalInfos[0].val + template.generalInfos[1].val + template.generalInfos[2].val;
+            template.progress.current = template.generalInfos[1].val + template.generalInfos[2].val + template.generalInfos[3].val;
+            console.log(template.generalInfos[1].val)
         }
     }
 
