@@ -38,23 +38,27 @@ document.querySelector('#live-template').addEventListener('template-bound', func
     Chart.defaults.global.responsive = true;
     Chart.defaults.global.maintainAspectRatio = true;
     Chart.defaults.global.scaleFontFamily = '"RobotoDraft", sans-serif';
+    Chart.defaults.global.scaleOverride = true;
+    Chart.defaults.global.scaleSteps = 10;
+    Chart.defaults.global.scaleStepWidth = 10;
+    Chart.defaults.global.scaleStartValue = 0;
 
-    // FIREBASE: Get running value changes to start sim visualization
-    running_ref.on('value', function(data) {
+        // FIREBASE: Get running value changes to start sim visualization
+        running_ref.on('value', function(data) {
 
-        var running = data.val();
+            var running = data.val();
 
-        if (running) {
-            console.log('Simulation is running');
-            _showRunningSim();
-        } else {
-            console.log('No simulation is running');
-            // Show no running sim message
-            paper_spinner.style.display = 'none'
-            sim_live.style.display = 'none';
-            no_running_msg.style.display = 'flex';
-        }
-    });
+            if (running) {
+                console.log('Simulation is running');
+                _showRunningSim();
+            } else {
+                console.log('No simulation is running');
+                // Show no running sim message
+                paper_spinner.style.display = 'none'
+                sim_live.style.display = 'none';
+                no_running_msg.style.display = 'flex';
+            }
+        });
 
 
     var _showRunningSim = function() {
@@ -168,7 +172,7 @@ document.querySelector('#live-template').addEventListener('template-bound', func
         }, {
             label: 'Id',
             val: 0,
-            icon: 'device:access-time'
+            icon: 'cloud-queue'
         }, ]
 
         var no_create_ref = last_sim_ref.child('no_create');
