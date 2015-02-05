@@ -43,22 +43,22 @@ document.querySelector('#live-template').addEventListener('template-bound', func
     Chart.defaults.global.scaleStepWidth = 10;
     Chart.defaults.global.scaleStartValue = 0;
 
-        // FIREBASE: Get running value changes to start sim visualization
-        running_ref.on('value', function(data) {
+    // FIREBASE: Get running value changes to start sim visualization
+    running_ref.on('value', function(data) {
 
-            var running = data.val();
+        var running = data.val();
 
-            if (running) {
-                console.log('Simulation is running');
-                _showRunningSim();
-            } else {
-                console.log('No simulation is running');
-                // Show no running sim message
-                paper_spinner.style.display = 'none'
-                sim_live.style.display = 'none';
-                no_running_msg.style.display = 'flex';
-            }
-        });
+        if (running) {
+            console.log('Simulation is running');
+            _showRunningSim();
+        } else {
+            console.log('No simulation is running');
+            // Show no running sim message
+            paper_spinner.style.display = 'none'
+            sim_live.style.display = 'none';
+            no_running_msg.style.display = 'flex';
+        }
+    });
 
 
     var _showRunningSim = function() {
@@ -95,7 +95,7 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                             id: 'r_local_gb'
                         }]
                     },
-                    infos: []
+                    stats: []
                 }
                 template.proxies.push(new_proxy);
 
@@ -127,7 +127,84 @@ document.querySelector('#live-template').addEventListener('template-bound', func
     */
     function _update_infos(last_sim_ref, proxy) {
 
-        template.proxies[proxy.id].infos = [{
+        template.generalInfos = [{
+            label: 'Id',
+            val: 0,
+            icon: 'cloud-queue'
+        }, {
+            label: 'Create',
+            val: 0,
+            icon: 'add-circle-outline'
+        }, {
+            label: 'Destroy',
+            val: 0,
+            icon: 'remove-circle-outline'
+        }, {
+            label: 'Resize',
+            val: 0,
+            icon: 'aspect-ratio'
+        }, {
+            label: 'Steps',
+            val: 0,
+            icon: 'more-horiz'
+        }, {
+            label: 'Start time',
+            val: 0,
+            icon: 'device:access-time'
+        }, ]
+
+        var no_create_ref = last_sim_ref.child('no_create');
+        var no_destroy_ref = last_sim_ref.child('no_destroy');
+        var no_resize_ref = last_sim_ref.child('no_resize');
+        var no_steps_ref = last_sim_ref.child('steps');
+        var start_ref = last_sim_ref.child('start');
+
+        last_sim_ref.once('value', function(data) {
+            template.generalInfos[0].val = data.key();
+        });
+        no_create_ref.on('value', function(data) {
+            template.generalInfos[1].val = data.val();
+            incr_progress();
+        });
+        no_destroy_ref.on('value', function(data) {
+            template.generalInfos[2].val = data.val();
+            incr_progress();
+        });
+        no_resize_ref.on('value', function(data) {
+            template.generalInfos[3].val = data.val();
+            incr_progress();
+        });
+        no_steps_ref.on('value', function(data) {
+            template.generalInfos[4].val = data.val();
+            template.progress.max = data.val();
+        });
+        start_ref.on('value', function(data) {
+            var start_date = new Date(data.val())
+            var seconds = start_date.getSeconds();
+            var minutes = start_date.getMinutes();
+            var hour = start_date.getHours();
+            var year = start_date.getFullYear();
+            var month = start_date.getMonth() + 1; // Months start with 0
+            var day = start_date.getDate();
+            template.generalInfos[5].val = day + "-" + month + "-" + year + " " + hour + ":" + minutes + ":" + seconds;
+        });
+
+        var incr_progress = function() {
+            template.progress.current = template.generalInfos[0].val + template.generalInfos[1].val + template.generalInfos[2].val;
+        }
+    }
+
+
+    function _update_stats(sim_ref, proxy, snapshot) {
+
+        var proxy_ref = sim_ref.child('proxies/' + proxy.id);
+        var aggr_no_active_cmps_ref = proxy_ref.child('snapshots/' + snapshot.id + '/aggr_no_active_cmps');
+        var aggr_r_local_gb_ref = proxy_ref.child('snapshots/' + snapshot.id + '/aggr_r_local_gb');
+        var aggr_r_memory_mb_ref = proxy_ref.child('snapshots/' + snapshot.id + '/aggr_r_memory_mb');
+        var aggr_r_vcpus_ref = proxy_ref.child('snapshots/' + snapshot.id + '/aggr_r_vcpus');
+        var no_failures_ref = proxy_ref.child('no_failures_ref');
+
+        template.proxies[proxy.id].stats = [{
             label: 'Avg active cmps',
             val: 0,
             icon: 'dns'
@@ -149,101 +226,27 @@ document.querySelector('#live-template').addEventListener('template-bound', func
             icon: 'error'
         }];
 
-        template.generalInfos = [{
-            label: 'Create',
-            val: 0,
-            icon: 'add-circle-outline'
-        }, {
-            label: 'Destroy',
-            val: 0,
-            icon: 'remove-circle-outline'
-        }, {
-            label: 'Resize',
-            val: 0,
-            icon: 'aspect-ratio'
-        }, {
-            label: 'Steps',
-            val: 0,
-            icon: 'more-horiz'
-        }, {
-            label: 'Start time',
-            val: 0,
-            icon: 'device:access-time'
-        }, {
-            label: 'Id',
-            val: 0,
-            icon: 'cloud-queue'
-        }, ]
-
-        var no_create_ref = last_sim_ref.child('no_create');
-        var no_destroy_ref = last_sim_ref.child('no_destroy');
-        var no_resize_ref = last_sim_ref.child('no_resize');
-        var no_steps_ref = last_sim_ref.child('steps');
-        var start_ref = last_sim_ref.child('start');
-
-        var proxy_ref = last_sim_ref.child('proxies/' + proxy.id);
-        var aggr_no_active_cmps_ref = proxy_ref.child('aggr_no_active_cmps');
-        var aggr_r_local_gb_ref = proxy_ref.child('aggr_r_local_gb');
-        var aggr_r_memory_mb_ref = proxy_ref.child('aggr_r_memory_mb');
-        var aggr_r_vcpus_ref = proxy_ref.child('aggr_r_vcpus');
-        var no_failures_ref = proxy_ref.child('no_failures_ref');
-
-        no_create_ref.on('value', function(data) {
-            template.generalInfos[0].val = data.val();
-            incr_progress();
-        });
-        no_destroy_ref.on('value', function(data) {
-            template.generalInfos[1].val = data.val();
-            incr_progress();
-        });
-        no_resize_ref.on('value', function(data) {
-            template.generalInfos[2].val = data.val();
-            incr_progress();
-        });
-        no_steps_ref.on('value', function(data) {
-            template.generalInfos[3].val = data.val();
-            template.progress.max = data.val();
-        });
-        start_ref.on('value', function(data) {
-            var start_date = new Date(data.val())
-            var seconds = start_date.getSeconds();
-            var minutes = start_date.getMinutes();
-            var hour = start_date.getHours();
-            var year = start_date.getFullYear();
-            var month = start_date.getMonth() + 1; // Months start with 0
-            var day = start_date.getDate();
-            template.generalInfos[4].val = day + "-" + month + "-" + year + " " + hour + ":" + minutes + ":" + seconds;
-        });
-
-        last_sim_ref.once('value', function(data) {
-            template.generalInfos[5].val = data.key();
+        aggr_no_active_cmps_ref.once('value', function(data) {
+            template.proxies[proxy.id].stats[0].val = parseFloat(data.val()).toFixed(3)
         })
-
-        aggr_no_active_cmps_ref.on('value', function(data) {
-            template.proxies[proxy.id].infos[0].val = parseFloat(data.val()).toFixed(3);
+        aggr_r_local_gb_ref.once('value', function(data) {
+            template.proxies[proxy.id].stats[1].val = parseFloat(data.val() * 100).toFixed(3);
         })
-        aggr_r_local_gb_ref.on('value', function(data) {
-            template.proxies[proxy.id].infos[1].val = parseFloat(data.val() * 100).toFixed(3);
+        aggr_r_memory_mb_ref.once('value', function(data) {
+            template.proxies[proxy.id].stats[2].val = parseFloat(data.val() * 100).toFixed(3);
         })
-        aggr_r_memory_mb_ref.on('value', function(data) {
-            template.proxies[proxy.id].infos[2].val = parseFloat(data.val() * 100).toFixed(3);
+        aggr_r_vcpus_ref.once('value', function(data) {
+            template.proxies[proxy.id].stats[3].val = parseFloat(data.val() * 100).toFixed(3);
         })
-        aggr_r_vcpus_ref.on('value', function(data) {
-            template.proxies[proxy.id].infos[3].val = parseFloat(data.val() * 100).toFixed(3);
+        no_failures_ref.once('value', function(data) {
+            template.proxies[proxy.id].stats[4].val = data.val() * 100;
         })
-        no_failures_ref.on('value', function(data) {
-            template.proxies[proxy.id].infos[4].val = data.val() * 100;
-        })
-
-
-        var incr_progress = function() {
-            template.progress.current = template.proxies[proxy.id].infos[0].val + template.proxies[proxy.id].infos[1].val + template.proxies[proxy.id].infos[2].val;
-        }
     }
 
     // SNAPSHOTS
     function _update_chart(last_sim_id, proxy, line_chart, bar_chart) {
-        new_proxy_snapshots_ref = sims_ref.child(last_sim_id + "/proxies/" + proxy.id + '/snapshots');
+        var new_proxy_snapshots_ref = sims_ref.child(last_sim_id + "/proxies/" + proxy.id + '/snapshots');
+        var last_sim_ref = sims_ref.child(last_sim_id);
 
         // Get the runned snapshot and start to update the charts
         new_proxy_snapshots_ref.once('value', function(data) {
@@ -254,6 +257,8 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                     id: data.key(),
                     val: data.val(),
                 }
+
+                _update_stats(last_sim_ref, proxy, new_snapshot);
 
                 // Get data
                 var avg_r_local_gb = parseFloat(new_snapshot.val.avg_r_local_gb * 100).toFixed(3);

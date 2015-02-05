@@ -37,9 +37,9 @@
                 </core-toolbar>
                 <div class="card-content">
                   <section flex horizontal wrap layout>
-                    <template repeat="{{info in proxy.infos}}">
-                      <core-item class="info-item" label="{{info.label}}" icon="{{info.icon}}" flex auto>
-                        <span class="info-val">{{info.val}}</span>
+                    <template repeat="{{stat in proxy.stats}}">
+                      <core-item class="info-item" label="{{stat.label}}" icon="{{stat.icon}}" flex auto>
+                        <span class="info-val">{{stat.val}}</span>
                       </core-item>
                     </template>
                   </section>
