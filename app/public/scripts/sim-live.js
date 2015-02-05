@@ -6,6 +6,7 @@ document.querySelector('#live-template').addEventListener('template-bound', func
     var no_running_msg = document.querySelector('#no-running-msg');
     var paper_spinner = document.querySelector('#loader');
     var metric_dropdown = document.querySelector('#metric-dropdown');
+    var fab = document.querySelector('paper-fab');
 
     // Color rgbs
     var cpu_color = "rgba(65, 174, 93, 1)";
@@ -25,7 +26,7 @@ document.querySelector('#live-template').addEventListener('template-bound', func
 
     // Template data-binding
     template.proxies = [];
-    template.stats = [];
+    template.generalInfos = [];
     template.architectures = [];
     template.progress = {
         current: 0,
@@ -80,13 +81,13 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                     metrics: {
                         selected: 'r_vcpus',
                         options: [{
-                            name: 'Cpu',
+                            name: 'Cpu %',
                             id: 'r_vcpus'
                         }, {
-                            name: 'RAM',
+                            name: 'RAM %',
                             id: 'r_memory_mb'
                         }, {
-                            name: 'Disk',
+                            name: 'Disk %',
                             id: 'r_local_gb'
                         }]
                     },
@@ -121,29 +122,8 @@ document.querySelector('#live-template').addEventListener('template-bound', func
     Updates the infos card
     */
     function _update_infos(last_sim_ref, proxy) {
-        console.log(proxy)
 
         template.proxies[proxy.id].infos = [{
-            label: 'Create',
-            val: 0,
-            icon: 'add-circle-outline'
-        }, {
-            label: 'Destroy',
-            val: 0,
-            icon: 'remove-circle-outline'
-        }, {
-            label: 'Resize',
-            val: 0,
-            icon: 'aspect-ratio'
-        }, {
-            label: 'Steps',
-            val: 0,
-            icon: 'more-horiz'
-        }, {
-            label: 'Start time',
-            val: 0,
-            icon: 'device:access-time'
-        }, {
             label: 'Avg active cmps',
             val: 0,
             icon: 'dns'
@@ -165,6 +145,32 @@ document.querySelector('#live-template').addEventListener('template-bound', func
             icon: 'error'
         }];
 
+        template.generalInfos = [{
+            label: 'Create',
+            val: 0,
+            icon: 'add-circle-outline'
+        }, {
+            label: 'Destroy',
+            val: 0,
+            icon: 'remove-circle-outline'
+        }, {
+            label: 'Resize',
+            val: 0,
+            icon: 'aspect-ratio'
+        }, {
+            label: 'Steps',
+            val: 0,
+            icon: 'more-horiz'
+        }, {
+            label: 'Start time',
+            val: 0,
+            icon: 'device:access-time'
+        }, {
+            label: 'Id',
+            val: 0,
+            icon: 'device:access-time'
+        }, ]
+
         var no_create_ref = last_sim_ref.child('no_create');
         var no_destroy_ref = last_sim_ref.child('no_destroy');
         var no_resize_ref = last_sim_ref.child('no_resize');
@@ -179,19 +185,19 @@ document.querySelector('#live-template').addEventListener('template-bound', func
         var no_failures_ref = proxy_ref.child('no_failures_ref');
 
         no_create_ref.on('value', function(data) {
-            template.proxies[proxy.id].infos[0].val = data.val();
+            template.generalInfos[0].val = data.val();
             incr_progress();
         });
         no_destroy_ref.on('value', function(data) {
-            template.proxies[proxy.id].infos[1].val = data.val();
+            template.generalInfos[1].val = data.val();
             incr_progress();
         });
         no_resize_ref.on('value', function(data) {
-            template.proxies[proxy.id].infos[2].val = data.val();
+            template.generalInfos[2].val = data.val();
             incr_progress();
         });
         no_steps_ref.on('value', function(data) {
-            template.proxies[proxy.id].infos[3].val = data.val();
+            template.generalInfos[3].val = data.val();
             template.progress.max = data.val();
         });
         start_ref.on('value', function(data) {
@@ -202,22 +208,27 @@ document.querySelector('#live-template').addEventListener('template-bound', func
             var year = start_date.getFullYear();
             var month = start_date.getMonth() + 1; // Months start with 0
             var day = start_date.getDate();
-            template.proxies[proxy.id].infos[4].val = day + "-" + month + "-" + year + " " + hour + ":" + minutes + ":" + seconds;
+            template.generalInfos[4].val = day + "-" + month + "-" + year + " " + hour + ":" + minutes + ":" + seconds;
         });
+
+        last_sim_ref.once('value', function(data) {
+            template.generalInfos[5].val = data.key();
+        })
+
         aggr_no_active_cmps_ref.on('value', function(data) {
-            template.proxies[proxy.id].infos[5].val = parseFloat(data.val()).toFixed(3);
+            template.proxies[proxy.id].infos[0].val = parseFloat(data.val()).toFixed(3);
         })
         aggr_r_local_gb_ref.on('value', function(data) {
-            template.proxies[proxy.id].infos[6].val = parseFloat(data.val() * 100).toFixed(3);
+            template.proxies[proxy.id].infos[1].val = parseFloat(data.val() * 100).toFixed(3);
         })
         aggr_r_memory_mb_ref.on('value', function(data) {
-            template.proxies[proxy.id].infos[7].val = parseFloat(data.val() * 100).toFixed(3);
+            template.proxies[proxy.id].infos[2].val = parseFloat(data.val() * 100).toFixed(3);
         })
         aggr_r_vcpus_ref.on('value', function(data) {
-            template.proxies[proxy.id].infos[8].val = parseFloat(data.val() * 100).toFixed(3);
+            template.proxies[proxy.id].infos[3].val = parseFloat(data.val() * 100).toFixed(3);
         })
         no_failures_ref.on('value', function(data) {
-            template.proxies[proxy.id].infos[9].val = data.val() * 100;
+            template.proxies[proxy.id].infos[4].val = data.val() * 100;
         })
 
 
@@ -259,15 +270,15 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                     // Display selected metric
                     switch (template.proxies[proxy.id].metrics.selected) {
                         case "r_local_gb":
-                            new_data[0].push(Math.random() * 100);
+                            new_data[0].push(cmps[i].r_local_gb * 100);
                             bar_chart.changeColor(0, disk_color, disk_color_transparent);
                             break;
                         case "r_vcpus":
-                            new_data[0].push(Math.random() * 100);
+                            new_data[0].push(cmps[i].r_vcpus * 100);
                             bar_chart.changeColor(0, cpu_color, cpu_color_transparent);
                             break;
                         case "r_memory_mb":
-                            new_data[0].push(Math.random() * 100);
+                            new_data[0].push(cmps[i].r_memory_mb * 100);
                             bar_chart.changeColor(0, ram_color, ram_color_transparent);
                             break;
                     }
@@ -341,4 +352,6 @@ document.querySelector('#live-template').addEventListener('template-bound', func
             pointHighlightStroke: cpu_color,
         }];
     }
+
+
 });

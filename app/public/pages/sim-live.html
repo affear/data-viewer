@@ -7,117 +7,124 @@
     <div id="no-running-msg">
       <h1 flex>No running simulation</h1>
     </div>
-    <div id="sim-live" flex>
-      <div horizontal layout wrap flex>
-        <template repeat="{{proxy in proxies}}">
-          <div flex>
-            <div class="proxy-toolbar core-header" id="toolbar{{proxy.id}}">
-              <div horizontal layout center id="proxy-toolbar-top">
-                <core-icon icon="dns"></core-icon>
-                <span flex center>{{proxy.val.address}}</span>
-                <span>{{proxy.val.type}}</span>
-              </div>
-              <paper-progress class="red" value="{{progress.current}}" max="{{progress.max}}"></paper-progress>
+    <div id="sim-live" horizontal layout wrap flex>
+      <core-tooltip id="fab-tooltip" position="top left" noarrow>
+        <paper-fab icon="info-outline" class="blue" title="info"></paper-fab>
+        <div tip flex horizontal wrap layout>
+          <template repeat="{{generalInfo in generalInfos}}">
+            <core-item class="info-item" label="{{generalInfo.label}}" icon="{{generalInfo.icon}}" flex auto>
+              <span class="info-val">{{generalInfo.val}}</span>
+            </core-item>
+          </template>
+        </div>
+      </core-tooltip>
+      <template repeat="{{proxy in proxies}}">
+        <div flex>
+          <div class="proxy-toolbar core-header" id="toolbar{{proxy.id}}">
+            <div horizontal layout center id="proxy-toolbar-top">
+              <core-icon icon="dns"></core-icon>
+              <span flex center>{{proxy.val.address}}</span>
+              <span>{{proxy.val.type}}</span>
             </div>
-
-            <div class="content" horizontal layout center-justified>
-              <div vertical layout>
-                <base-card>
-                  <core-toolbar class="card-tool">
-                    <core-icon icon="info-outline"></core-icon>
-                    <span flex>Info</span>
-                  </core-toolbar>
-                  <div class="card-content">
-                    <section flex horizontal wrap layout>
-                      <template repeat="{{info in proxy.infos}}">
-                        <core-item class="info-item" label="{{info.label}}" icon="{{info.icon}}" flex auto>
-                          <span class="info-val">{{info.val}}</span>
-                        </core-item>
-                      </template>
-                    </section>
-                  </div>
-                </base-card>
-                <base-card class="chart-card">
-                  <core-toolbar class="card-tool">
-                    <core-icon icon="trending-up"></core-icon>
-                    <span flex>Average Metrics</span>
-                  </core-toolbar>
-                  <div class="card-content">
-                    <chart-js id="line-chart{{proxy.id}}" dataLimit="10" initData="{{lineChartInitData}}" chartType="line"></chart-js>
-                    <div id="line-legend" layout horizontal center>
-                      <div class="line-legend-item disk" layout horizontal center flex>
-                        <div class="color-box disk"></div>
-                        <span>Disk %</span>
-                      </div>
-                      <div class="line-legend-item ram" layout horizontal center flex>
-                        <div class="color-box ram"></div>
-                        <span>RAM %</span>
-                      </div>
-                      <div class="line-legend-item cpu" layout horizontal center flex>
-                        <div class="color-box cpu"></div>
-                        <span>CPU %</span>
-                      </div>
-                      <div class="line-legend-item active_cmps" layout horizontal center flex>
-                        <div class="color-box active_cmps"></div>
-                        <span>Active cmps #</span>
-                      </div>
+            <paper-progress class="red" value="{{progress.current}}" max="{{progress.max}}"></paper-progress>
+          </div>
+          <div class="content" horizontal layout center-justified>
+            <div vertical layout>
+              <base-card>
+                <core-toolbar class="card-tool">
+                  <core-icon icon="info-outline"></core-icon>
+                  <span flex>Info</span>
+                </core-toolbar>
+                <div class="card-content">
+                  <section flex horizontal wrap layout>
+                    <template repeat="{{info in proxy.infos}}">
+                      <core-item class="info-item" label="{{info.label}}" icon="{{info.icon}}" flex auto>
+                        <span class="info-val">{{info.val}}</span>
+                      </core-item>
+                    </template>
+                  </section>
+                </div>
+              </base-card>
+              <base-card class="chart-card">
+                <core-toolbar class="card-tool">
+                  <core-icon icon="trending-up"></core-icon>
+                  <span flex>Average Metrics</span>
+                </core-toolbar>
+                <div class="card-content">
+                  <chart-js id="line-chart{{proxy.id}}" dataLimit="10" initData="{{lineChartInitData}}" chartType="line"></chart-js>
+                  <div id="line-legend" layout horizontal center>
+                    <div class="line-legend-item disk" layout horizontal center flex>
+                      <div class="color-box disk"></div>
+                      <span>Disk %</span>
+                    </div>
+                    <div class="line-legend-item ram" layout horizontal center flex>
+                      <div class="color-box ram"></div>
+                      <span>RAM %</span>
+                    </div>
+                    <div class="line-legend-item cpu" layout horizontal center flex>
+                      <div class="color-box cpu"></div>
+                      <span>CPU %</span>
+                    </div>
+                    <div class="line-legend-item active_cmps" layout horizontal center flex>
+                      <div class="color-box active_cmps"></div>
+                      <span>Active cmps #</span>
                     </div>
                   </div>
-                </base-card class="chart-card">
-                <base-card class="chart-card">
-                  <core-toolbar class="card-tool">
-                    <core-icon icon="trending-up"></core-icon>
-                    <paper-dropdown-menu>
-                      <paper-dropdown class="dropdown" id="metric-dropdown{{proxy.id}}">
-                        <core-menu id="metric-sel" selected="{{proxy.metrics.selected}}" valueattr="value" class="menu" on-core-select="{{changeBarMetric()}}">
-                          <template repeat="{{option in proxy.metrics.options}}">
-                            <paper-item value="{{option.id}}">{{option.name}}</paper-item>
-                          </template>
-                        </core-menu>
-                      </paper-dropdown>
-                    </paper-dropdown-menu>
-                  </core-toolbar>
-                  <div class="card-content">
-                    <chart-js id="bar-chart{{proxy.id}}" initData="{{barChartInitData}}" chartType="bar"></chart-js>
-                  </div>
-                </base-card class="chart-card">
-                <base-card>
-                  <core-toolbar class="card-tool">
-                    <core-icon icon="info-outline"></core-icon>
-                    <span flex>Architecture</span>
-                  </core-toolbar>
-                  <div class="card-content">
-                    <section flex horizontal wrap layout>
-                      <template repeat="{{cmp in proxy.val.architecture}}">
-                        <div class="cmp-info" layout vertical>
-                          <core-item class="cmp-info-item font-scalable small" icon="dns" flex auto>
-                            <span class="cmp-info-val">{{cmp.hostname}}</span>
-                          </core-item>
-                          <core-item class="cmp-info-item font-scalable small" label="Ip:" flex auto>
-                            <span class="cmp-info-val">{{cmp.address}}</span>
-                          </core-item>
-                          <core-item class="cmp-info-item font-scalable small" label="Vcpus:" flex auto>
-                            <span class="cmp-info-val">{{cmp.vcpus}}</span>
-                          </core-item>
-                          <core-item class="cmp-info-item font-scalable small" label="Disk:" flex auto>
-                            <span class="cmp-info-val">{{cmp.local_gb}}</span>
-                          </core-item>
-                          <core-item class="cmp-info-item font-scalable small" label="Ram:" flex auto>
-                            <span class="cmp-info-val">{{cmp.memory_mb}}</span>
-                          </core-item>
-                        </div>
-                      </template>
-                    </section>
-                  </div>
-                </base-card>
-              </div>
+                </div>
+              </base-card class="chart-card">
+              <base-card class="chart-card">
+                <core-toolbar class="card-tool">
+                  <core-icon icon="trending-up"></core-icon>
+                  <paper-dropdown-menu>
+                    <paper-dropdown class="dropdown" id="metric-dropdown{{proxy.id}}">
+                      <core-menu id="metric-sel" selected="{{proxy.metrics.selected}}" valueattr="value" class="menu" on-core-select="{{changeBarMetric()}}">
+                        <template repeat="{{option in proxy.metrics.options}}">
+                          <paper-item value="{{option.id}}">{{option.name}}</paper-item>
+                        </template>
+                      </core-menu>
+                    </paper-dropdown>
+                  </paper-dropdown-menu>
+                </core-toolbar>
+                <div class="card-content">
+                  <chart-js id="bar-chart{{proxy.id}}" initData="{{barChartInitData}}" chartType="bar"></chart-js>
+                </div>
+              </base-card class="chart-card">
+              <base-card>
+                <core-toolbar class="card-tool">
+                  <core-icon icon="info-outline"></core-icon>
+                  <span flex>Architecture</span>
+                </core-toolbar>
+                <div class="card-content">
+                  <section flex horizontal wrap layout>
+                    <template repeat="{{cmp in proxy.val.architecture}}">
+                      <div class="cmp-info" layout vertical>
+                        <core-item class="cmp-info-item font-scalable small" icon="dns" flex auto>
+                          <span class="cmp-info-val">{{cmp.hostname}}</span>
+                        </core-item>
+                        <core-item class="cmp-info-item font-scalable small" label="Ip:" flex auto>
+                          <span class="cmp-info-val">{{cmp.address}}</span>
+                        </core-item>
+                        <core-item class="cmp-info-item font-scalable small" label="Vcpus:" flex auto>
+                          <span class="cmp-info-val">{{cmp.vcpus}}</span>
+                        </core-item>
+                        <core-item class="cmp-info-item font-scalable small" label="Disk:" flex auto>
+                          <span class="cmp-info-val">{{cmp.local_gb}}</span>
+                        </core-item>
+                        <core-item class="cmp-info-item font-scalable small" label="Ram:" flex auto>
+                          <span class="cmp-info-val">{{cmp.memory_mb}}</span>
+                        </core-item>
+                      </div>
+                    </template>
+                  </section>
+                </div>
+              </base-card>
             </div>
           </div>
-        </template>
-      </div>
+        </div>
+      </template>
     </div>
   </template>
-<!--   <div class="footer">
+  <!--   <div class="footer">
     <div>
       <div layout horizontal center-justified>
         <core-icon icon="polymer"></core-icon>
