@@ -38,16 +38,16 @@
                     </div>
                   </core-tooltip>
                 </div>
+                <paper-progress class="red" value="{{progress.current}}" max="{{progress.max}}"></paper-progress>
                 <core-collapse id="collapse{{proxy.id}}">
                   <div class="content" flex horizontal wrap layout>
                     <template repeat="{{stat in proxy.stats}}">
-                      <core-item class="info-stat" label="{{stat.label}}" icon="{{stat.icon}}" flex auto>
+                      <core-item class="info-stat" label="{{stat.label}}" icon="{{stat.icon}}">
                         <span class="info-val">{{stat.val}}</span>
                       </core-item>
                     </template>
                   </div>
                 </core-collapse>
-                <paper-progress class="red" value="{{progress.current}}" max="{{progress.max}}"></paper-progress>
               </div>
             </template>
           </div>
@@ -84,16 +84,21 @@
               </base-card class="chart-card">
               <base-card class="chart-card">
                 <core-toolbar class="card-tool">
-                  <core-icon icon="trending-up"></core-icon>
-                  <paper-dropdown-menu>
-                    <paper-dropdown class="dropdown" id="metric-dropdown{{proxy.id}}">
-                      <core-menu id="metric-sel" selected="{{proxy.metrics.selected}}" valueattr="value" class="menu" on-core-select="{{changeBarMetric()}}">
-                        <template repeat="{{option in proxy.metrics.options}}">
-                          <paper-item value="{{option.id}}">{{option.name}}</paper-item>
-                        </template>
-                      </core-menu>
-                    </paper-dropdown>
-                  </paper-dropdown-menu>
+                  <div>
+                    <div flex horizontal layout flex>
+                      <core-icon icon="trending-up"></core-icon>
+                      <paper-dropdown-menu>
+                        <paper-dropdown class="dropdown" id="metric-dropdown{{proxy.id}}">
+                          <core-menu id="metric-sel" selected="{{proxy.metrics.selected}}" valueattr="value" class="menu" on-core-select="{{changeBarMetric()}}">
+                            <template repeat="{{option in proxy.metrics.options}}">
+                              <paper-item value="{{option.id}}">{{option.name}}</paper-item>
+                            </template>
+                          </core-menu>
+                        </paper-dropdown>
+                      </paper-dropdown-menu>
+                    </div>
+                    <core-item icon="more-horiz" label="{{currentStep}}"></core-item>
+                  </div>
                 </core-toolbar>
                 <div class="card-content">
                   <chart-js id="bar-chart{{proxy.id}}" initData="{{barChartInitData}}" chartType="bar"></chart-js>

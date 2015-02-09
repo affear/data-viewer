@@ -27,6 +27,7 @@ document.querySelector('#live-template').addEventListener('template-bound', func
     // Template data-binding
     template.proxies = [];
     template.generalInfos = [];
+    template.currentStep = 0;
     template.architectures = [];
     template.progress = {
         current: 0,
@@ -306,6 +307,7 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                     }
                 };
                 bar_chart.update(new_data);
+                template.currentStep = new_snapshot.id;
             });
         })
     }
