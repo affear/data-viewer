@@ -26,7 +26,6 @@ document.querySelector('#live-template').addEventListener('template-bound', func
 
     // Template data-binding
     template.proxies = [];
-    template.services = [];
     template.generalInfos = [];
     template.architectures = [];
     template.progress = {
@@ -96,11 +95,12 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                             id: 'r_local_gb'
                         }]
                     },
-                    stats: []
+                    stats: [],
+                    services: []
                 }
                 template.proxies.push(new_proxy);
 
-                _update_infos(last_sim_ref, new_proxy);
+                _update_infos(last_sim_ref);
 
                 _initLineCharts();
                 _initBarCharts(last_sim_ref, new_proxy);
@@ -111,11 +111,10 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                     var new_proxy_line_chart = document.querySelector('#line-chart' + new_proxy.id);
                     var new_proxy_bar_chart = document.querySelector('#bar-chart' + new_proxy.id);
                     var sim_address = document.querySelector('#sim-address');
-                    var collapse = document.querySelector('#collapse');
 
                     if (new_proxy_line_chart && new_proxy_bar_chart && sim_address) {
-                        _initCollapse(sim_address, collapse);
-                        _update_chart(last_sim_id, new_proxy, new_proxy_line_chart, new_proxy_bar_chart);
+                        _initCollapses(sim_address);
+                        _update_sim(last_sim_id, new_proxy, new_proxy_line_chart, new_proxy_bar_chart);
                         clearInterval(checkExist);
                     }
                 }, 100);
@@ -128,9 +127,9 @@ document.querySelector('#live-template').addEventListener('template-bound', func
     // Helper functions
 
     /*
-    Updates the infos card
+    Updates the infos tooltip 
     */
-    function _update_infos(last_sim_ref, proxy) {
+    function _update_infos(last_sim_ref) {
 
         template.generalInfos = [{
             label: 'Id',
@@ -204,7 +203,7 @@ document.querySelector('#live-template').addEventListener('template-bound', func
         var services_ref = proxy_ref.child('services');
 
         services_ref.once('value', function(data) {
-            template.services = data.val();
+            template.proxies[proxy.id].services = data.val();
         });
     }
 
@@ -257,7 +256,7 @@ document.querySelector('#live-template').addEventListener('template-bound', func
     }
 
     // SNAPSHOTS
-    function _update_chart(last_sim_id, proxy, line_chart, bar_chart) {
+    function _update_sim(last_sim_id, proxy, line_chart, bar_chart) {
         var new_proxy_snapshots_ref = sims_ref.child(last_sim_id + "/proxies/" + proxy.id + '/snapshots');
         var last_sim_ref = sims_ref.child(last_sim_id);
 
@@ -385,7 +384,7 @@ document.querySelector('#live-template').addEventListener('template-bound', func
         })
     }
 
-    function _initCollapse(sim_address, collapse) {
+    function _initCollapses(sim_address, collapse) {
         var collapse_icon = document.querySelector('#collapse-icon');
         sim_address.addEventListener('click', function() {
             collapse.opened = !collapse.opened;

@@ -29,7 +29,7 @@
                 <core-tooltip position="bottom left" noarrow>
                   <core-item id="services-title" icon="extension">Services</core-item>
                   <div tip flex horizontal wrap layout>
-                    <template repeat="{{service in services}}">
+                    <template repeat="{{service in proxy.services}}">
                       <core-item class="info-item" label="{{service.binary}}" icon="extension" flex auto>
                         <span class="info-val">{{service.n}}</span>
                       </core-item>
@@ -37,7 +37,7 @@
                   </div>
                 </core-tooltip>
               </div>
-              <core-collapse id="collapse">
+              <core-collapse id="collapse{{proxy.id}}">
                 <div class="content" flex horizontal wrap layout>
                   <template repeat="{{stat in proxy.stats}}">
                     <core-item class="info-stat" label="{{stat.label}}" icon="{{stat.icon}}" flex auto>
