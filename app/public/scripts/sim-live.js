@@ -26,6 +26,7 @@ document.querySelector('#live-template').addEventListener('template-bound', func
 
     // Template data-binding
     template.proxies = [];
+    template.services = [];
     template.generalInfos = [];
     template.architectures = [];
     template.progress = {
@@ -102,14 +103,18 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                 _update_infos(last_sim_ref, new_proxy);
 
                 _initLineCharts();
-                _initBarCharts(new_proxy.val.architecture);
+                _initBarCharts(last_sim_ref, new_proxy);
+
 
                 // This is shit: check when the template renders the chart
                 var checkExist = setTimeout(function() {
                     var new_proxy_line_chart = document.querySelector('#line-chart' + new_proxy.id);
                     var new_proxy_bar_chart = document.querySelector('#bar-chart' + new_proxy.id);
+                    var sim_address = document.querySelector('#sim-address');
+                    var collapse = document.querySelector('#collapse');
 
-                    if (new_proxy_line_chart && new_proxy_bar_chart) {
+                    if (new_proxy_line_chart && new_proxy_bar_chart && sim_address) {
+                        _initCollapse(sim_address, collapse);
                         _update_chart(last_sim_id, new_proxy, new_proxy_line_chart, new_proxy_bar_chart);
                         clearInterval(checkExist);
                     }
@@ -191,10 +196,17 @@ document.querySelector('#live-template').addEventListener('template-bound', func
 
         var incr_progress = function() {
             template.progress.current = template.generalInfos[1].val + template.generalInfos[2].val + template.generalInfos[3].val;
-            console.log(template.generalInfos[1].val)
         }
     }
 
+    function _update_services(sim_ref, proxy) {
+        var proxy_ref = sim_ref.child('proxies/' + proxy.id);
+        var services_ref = proxy_ref.child('services');
+
+        services_ref.once('value', function(data) {
+            template.services = data.val();
+        });
+    }
 
     function _update_stats(sim_ref, proxy, snapshot) {
 
@@ -260,6 +272,7 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                 }
 
                 _update_stats(last_sim_ref, proxy, new_snapshot);
+                _update_services(last_sim_ref, proxy);
 
                 // Get data
                 var avg_r_local_gb = parseFloat(new_snapshot.val.avg_r_local_gb * 100).toFixed(3);
@@ -340,28 +353,53 @@ document.querySelector('#live-template').addEventListener('template-bound', func
         };
     }
 
-    var _initBarCharts = function(architecture) {
+    var _initBarCharts = function(sim_ref, proxy) {
 
-        template.no_cmps = architecture.length;
-        template.barChartInitData = {};
-        template.barChartInitData.labels = [];
+        var architecture_ref = sim_ref.child('proxies/' + proxy.id + '/architecture');
 
-        var default_data = []
-        for (var i = 0; i < architecture.length; i++) {
-            template.barChartInitData.labels.push(architecture[i].hostname);
-            default_data.push(0);
-        }
-        template.barChartInitData.datasets = [{
-            data: default_data,
-            label: "avg_r_vcups",
-            fillColor: cpu_color_transparent,
-            strokeColor: cpu_color,
-            pointColor: cpu_color,
-            pointStrokeColor: "#fff",
-            pointHighlightFill: "#fff",
-            pointHighlightStroke: cpu_color,
-        }];
+        architecture_ref.on('value', function(data) {
+            // If no data return
+            if (!data.val()) return;
+            var architecture = data.val();
+            template.no_cmps = architecture.length;
+            template.barChartInitData = {};
+            template.barChartInitData.labels = [];
+
+            var default_data = []
+            for (var i = 0; i < architecture.length; i++) {
+                template.barChartInitData.labels.push(architecture[i].hostname);
+                default_data.push(0);
+            }
+            template.barChartInitData.datasets = [{
+                data: default_data,
+                label: "avg_r_vcups",
+                fillColor: cpu_color_transparent,
+                strokeColor: cpu_color,
+                pointColor: cpu_color,
+                pointStrokeColor: "#fff",
+                pointHighlightFill: "#fff",
+                pointHighlightStroke: cpu_color,
+            }];
+            // When the data are retrieved detach callback
+            architecture_ref.off('value');
+        })
     }
 
-
+    function _initCollapse(sim_address, collapse) {
+        var collapse_icon = document.querySelector('#collapse-icon');
+        sim_address.addEventListener('click', function() {
+            collapse.opened = !collapse.opened;
+        });
+        // Toggle icon (animations with css)
+        collapse.addEventListener('core-collapse-open', function(e) {
+            console.log(collapse.opened )
+            console.log(collapse_icon.className)
+            if (collapse.opened) {
+                collapse_icon.className = 'opened';
+            }
+            if (!collapse.opened) {
+                collapse_icon.className = 'closed';
+            }
+        });
+    }
 });

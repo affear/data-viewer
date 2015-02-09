@@ -130,11 +130,6 @@ paper-progress.red {
     text-transform: uppercase;
     font-weight: 100;
 }
-.proxy-toolbar {
-    color: #6E6E6E;
-    font-size: 1.5em;
-    text-transform: uppercase;
-}
 /* Remove the bottom border of the dropdown menu*/
 
 paper-dropdown-menu {
@@ -160,13 +155,6 @@ paper-dropdown-menu {
 .cmp-info-val {
     margin-left: 4px;
     font-weight: 400;
-}
-#proxy-toolbar-top {
-    font-size: 1rem;
-    padding-left: 40px;
-    padding-right: 40px;
-    padding-top: 15px;
-    padding-bottom: 5px;
 }
 .footer {
     color: #9E9E9E;
@@ -220,7 +208,12 @@ paper-fab.blue {
     background: #2196F3;
     margin: 24px;
 }
-
+#aggr-card {
+    z-index: 1;
+}
+#aggr-card /deep/ .card {
+    margin: 0;
+}
 #fab-tooltip::shadow .core-tooltip {
     opacity: 0;
     -webkit-transition: all 300ms cubic-bezier(0, 1.92, .99, 1.07);
@@ -232,4 +225,50 @@ paper-fab.blue {
     opacity: 1;
     -webkit-transform: translate3d(0, 0, 0);
     transform: translate3d(0, 0, 0);
+}
+/* Proxy toolbar */
+
+.proxy-toolbar {
+    color: #6E6E6E;
+    font-size: 1.5em;
+}
+.proxy-toolbar .heading {
+    font-size: 1rem;
+    padding-left: 40px;
+    padding-right: 40px;
+    padding-top: 15px;
+    padding-bottom: 5px;
+}
+.proxy-toolbar .content {
+    font-size: 0.9rem;
+    padding-left: 40px;
+    padding-right: 40px;
+    padding-top: 15px;
+    padding-bottom: 5px;
+}
+#services-title {
+    cursor: default;
+    text-transform: uppercase;
+}
+#sim-address:hover {
+    cursor: pointer;
+}
+/* Collapse Icon */
+
+#collapse-icon {
+    -webkit-transition: 0.33s ease-in-out;
+    -moz-transition: 0.33s ease-in-out;
+    -o-transition: 0.33s ease-in-out;
+}
+#collapse-icon.opened {
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+}
+#collapse-icon.closed {
+    -webkit-transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
+    -ms-transform: rotate(-90deg);
 }
