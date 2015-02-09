@@ -113,9 +113,9 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                     var sim_address = document.querySelector('#sim-address');
 
                     if (new_proxy_line_chart && new_proxy_bar_chart && sim_address) {
-                        _initCollapses(sim_address);
+                        _initCollapses(sim_address, new_proxy);
                         _update_sim(last_sim_id, new_proxy, new_proxy_line_chart, new_proxy_bar_chart);
-                        clearInterval(checkExist);
+                        clearTimeout(checkExist);
                     }
                 }, 100);
 
@@ -384,20 +384,27 @@ document.querySelector('#live-template').addEventListener('template-bound', func
         })
     }
 
-    function _initCollapses(sim_address, collapse) {
-        var collapse_icon = document.querySelector('#collapse-icon');
-        sim_address.addEventListener('click', function() {
-            collapse.opened = !collapse.opened;
-        });
-        // Toggle icon (animations with css)
-        collapse.addEventListener('core-collapse-open', function(e) {
-            console.log(collapse.opened )
-            console.log(collapse_icon.className)
-            if (collapse.opened) {
-                collapse_icon.className = 'opened';
+    function _initCollapses(sim_address, new_proxy) {
+        var collapse_icon = document.querySelector('#collapse-icon' + new_proxy.id);
+
+        collapse_icon.addEventListener('click', function() {
+            // Opens all collapses
+            for (var i = 0; i < template.proxies.length; i++) {
+                var collapse_content = document.querySelector('#collapse' + i);
+                collapse_content.opened = !collapse_content.opened;
             }
-            if (!collapse.opened) {
-                collapse_icon.className = 'closed';
+        });
+
+        // Toggle icon (animations with css) for the new collapse
+        var collapse_content = document.querySelector('#collapse' + new_proxy.id);
+
+        collapse_content.addEventListener('core-collapse-open', function() {
+            if (collapse_content.opened) {
+                collapse_icon.classList.remove('closed');
+                collapse_icon.classList.add('opened');
+            }else if (!collapse_content.opened) {
+                collapse_icon.classList.remove('opened');
+                collapse_icon.classList.add('closed');
             }
         });
     }

@@ -255,18 +255,18 @@ paper-fab.blue {
 }
 /* Collapse Icon */
 
-#collapse-icon {
+.collapse-icon {
     -webkit-transition: 0.33s ease-in-out;
     -moz-transition: 0.33s ease-in-out;
     -o-transition: 0.33s ease-in-out;
 }
-#collapse-icon.opened {
+.collapse-icon.opened {
     -webkit-transform: rotate(0deg);
     -moz-transform: rotate(0deg);
     -o-transform: rotate(0deg);
     -ms-transform: rotate(0deg);
 }
-#collapse-icon.closed {
+.collapse-icon.closed {
     -webkit-transform: rotate(-90deg);
     -moz-transform: rotate(-90deg);
     -o-transform: rotate(-90deg);

@@ -19,36 +19,38 @@
         </div>
       </core-tooltip>
       <core-header-panel mode="waterfall" flex>
-        <div class="core-header" horizontal layout center>
-          <template repeat="{{proxy in proxies}}">
-            <div class="proxy-toolbar" id="toolbar{{proxy.id}}" flex>
-              <div class="heading" horizontal layout center>
-                <core-item class="info-item" label="{{proxy.val.address}}" icon="dns" flex layout horizontal center id="sim-address">
-                  <core-icon id="collapse-icon" class="closed" icon="expand-more"></core-icon>
-                </core-item>
-                <core-tooltip position="bottom left" noarrow>
-                  <core-item id="services-title" icon="extension">Services</core-item>
-                  <div tip flex horizontal wrap layout>
-                    <template repeat="{{service in proxy.services}}">
-                      <core-item class="info-item" label="{{service.binary}}" icon="extension" flex auto>
-                        <span class="info-val">{{service.n}}</span>
+        <div class="core-header">
+          <div horizontal layout center>
+            <template repeat="{{proxy in proxies}}">
+              <div class="proxy-toolbar" id="toolbar{{proxy.id}}" flex>
+                <div class="heading" horizontal layout center>
+                  <core-item class="info-item" label="{{proxy.val.address}}" icon="dns" flex layout horizontal center id="sim-address">
+                    <core-icon id="collapse-icon{{proxy.id}}" class="collapse-icon closed" icon="expand-more"></core-icon>
+                  </core-item>
+                  <core-tooltip position="bottom left" noarrow>
+                    <core-item id="services-title" icon="extension">Services</core-item>
+                    <div tip flex horizontal wrap layout>
+                      <template repeat="{{service in proxy.services}}">
+                        <core-item class="info-item" label="{{service.binary}}" icon="extension" flex auto>
+                          <span class="info-val">{{service.n}}</span>
+                        </core-item>
+                      </template>
+                    </div>
+                  </core-tooltip>
+                </div>
+                <core-collapse id="collapse{{proxy.id}}">
+                  <div class="content" flex horizontal wrap layout>
+                    <template repeat="{{stat in proxy.stats}}">
+                      <core-item class="info-stat" label="{{stat.label}}" icon="{{stat.icon}}" flex auto>
+                        <span class="info-val">{{stat.val}}</span>
                       </core-item>
                     </template>
                   </div>
-                </core-tooltip>
+                </core-collapse>
+                <paper-progress class="red" value="{{progress.current}}" max="{{progress.max}}"></paper-progress>
               </div>
-              <core-collapse id="collapse{{proxy.id}}">
-                <div class="content" flex horizontal wrap layout>
-                  <template repeat="{{stat in proxy.stats}}">
-                    <core-item class="info-stat" label="{{stat.label}}" icon="{{stat.icon}}" flex auto>
-                      <span class="info-val">{{stat.val}}</span>
-                    </core-item>
-                  </template>
-                </div>
-              </core-collapse>
-              <paper-progress class="red" value="{{progress.current}}" max="{{progress.max}}"></paper-progress>
-            </div>
-          </template>
+            </template>
+          </div>
         </div>
         <div class="content" horizontal layout center-justified>
           <template repeat="{{proxy in proxies}}">
