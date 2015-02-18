@@ -28,11 +28,10 @@ document.querySelector('#live-template').addEventListener('template-bound', func
     template.proxies = [];
     template.generalInfos = [];
     template.currentStep = 0;
-    template.architectures = [];
     template.progress = {
         current: 0,
         max: 100
-    }
+    };
 
     // Chart configurations
     Chart.defaults.global.animationSteps = 20;
@@ -101,6 +100,28 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                 }
                 template.proxies.push(new_proxy);
 
+                template.proxies[new_proxy.id].stats = [{
+                    label: 'Avg active cmps',
+                    val: 0,
+                    icon: 'dns'
+                }, {
+                    label: 'Avg disk (GB)',
+                    val: 0,
+                    icon: 'device:data-usage'
+                }, {
+                    label: 'Avg memory (MB)',
+                    val: 0,
+                    icon: 'hardware:memory'
+                }, {
+                    label: 'Avg vcpus',
+                    val: 0,
+                    icon: 'hardware:memory'
+                }, {
+                    label: 'Failures',
+                    val: 0,
+                    icon: 'error'
+                }];
+
                 _update_infos(last_sim_ref);
 
                 _initLineCharts();
@@ -115,6 +136,7 @@ document.querySelector('#live-template').addEventListener('template-bound', func
 
                     if (new_proxy_line_chart && new_proxy_bar_chart && sim_address) {
                         _initCollapses(sim_address, new_proxy);
+                        // _initDropdown(new_proxy, last_sim_proxies_ref);
                         _update_sim(last_sim_id, new_proxy, new_proxy_line_chart, new_proxy_bar_chart);
                         clearTimeout(checkExist);
                     }
@@ -215,56 +237,38 @@ document.querySelector('#live-template').addEventListener('template-bound', func
         var aggr_r_local_gb_ref = proxy_ref.child('snapshots/' + snapshot.id + '/aggr_r_local_gb');
         var aggr_r_memory_mb_ref = proxy_ref.child('snapshots/' + snapshot.id + '/aggr_r_memory_mb');
         var aggr_r_vcpus_ref = proxy_ref.child('snapshots/' + snapshot.id + '/aggr_r_vcpus');
-        var no_failures_ref = proxy_ref.child('no_failures_ref');
-
-        template.proxies[proxy.id].stats = [{
-            label: 'Avg active cmps',
-            val: 0,
-            icon: 'dns'
-        }, {
-            label: 'Avg disk (GB)',
-            val: 0,
-            icon: 'device:data-usage'
-        }, {
-            label: 'Avg memory (MB)',
-            val: 0,
-            icon: 'hardware:memory'
-        }, {
-            label: 'Avg vcpus',
-            val: 0,
-            icon: 'hardware:memory'
-        }, {
-            label: 'Failures',
-            val: 0,
-            icon: 'error'
-        }];
 
         aggr_no_active_cmps_ref.once('value', function(data) {
             template.proxies[proxy.id].stats[0].val = parseFloat(data.val()).toFixed(3)
-        })
+        });
         aggr_r_local_gb_ref.once('value', function(data) {
             template.proxies[proxy.id].stats[1].val = parseFloat(data.val() * 100).toFixed(3);
-        })
+        });
         aggr_r_memory_mb_ref.once('value', function(data) {
             template.proxies[proxy.id].stats[2].val = parseFloat(data.val() * 100).toFixed(3);
-        })
+        });
         aggr_r_vcpus_ref.once('value', function(data) {
             template.proxies[proxy.id].stats[3].val = parseFloat(data.val() * 100).toFixed(3);
-        })
-        no_failures_ref.once('value', function(data) {
-            template.proxies[proxy.id].stats[4].val = data.val() * 100;
-        })
+        });
     }
 
     // SNAPSHOTS
     function _update_sim(last_sim_id, proxy, line_chart, bar_chart) {
         var new_proxy_snapshots_ref = sims_ref.child(last_sim_id + "/proxies/" + proxy.id + '/snapshots');
+        var no_failures_ref = sims_ref.child(last_sim_id + "/proxies/" + proxy.id + '/no_failures');
         var last_sim_ref = sims_ref.child(last_sim_id);
+
+        // Update failures
+        no_failures_ref.on('value', function(data) {
+            template.proxies[proxy.id].stats[4].val = data.val();
+        });
 
         // Get the runned snapshot and start to update the charts
         new_proxy_snapshots_ref.once('value', function(data) {
             // Start reading steps the last minus 10
             var no_runned_steps = data.numChildren();
+
+
             new_proxy_snapshots_ref.orderByKey().startAt((no_runned_steps - 10).toString()).on('child_added', function(data) {
                 var new_snapshot = {
                     id: data.key(),
@@ -285,29 +289,7 @@ document.querySelector('#live-template').addEventListener('template-bound', func
                 line_chart.addData([avg_r_local_gb, avg_r_memory_mb, avg_r_vcpus, no_active_cmps], new_snapshot.id + ': ' + new_snapshot.val.command);
 
                 // BAR CHART
-                var cmps = new_snapshot.val.cmps;
-                var new_data = [
-                    []
-                ];
-                for (var i = 0; i < cmps.length; i++) {
-                    // Display selected metric
-                    switch (template.proxies[proxy.id].metrics.selected) {
-                        case "r_local_gb":
-                            new_data[0].push(cmps[i].r_local_gb * 100);
-                            bar_chart.changeColor(0, disk_color, disk_color_transparent);
-                            break;
-                        case "r_vcpus":
-                            new_data[0].push(cmps[i].r_vcpus * 100);
-                            bar_chart.changeColor(0, cpu_color, cpu_color_transparent);
-                            break;
-                        case "r_memory_mb":
-                            new_data[0].push(cmps[i].r_memory_mb * 100);
-                            bar_chart.changeColor(0, ram_color, ram_color_transparent);
-                            break;
-                    }
-                };
-                bar_chart.update(new_data);
-                template.currentStep = new_snapshot.id;
+                _updateBarChart(proxy, new_snapshot, bar_chart);
             });
         })
     }
@@ -386,6 +368,39 @@ document.querySelector('#live-template').addEventListener('template-bound', func
         })
     }
 
+    function _updateBarChart(proxy, snapshot, bar_chart) {
+        var cmps = snapshot.val.cmps;
+        var new_data = [
+            []
+        ];
+
+
+        for (var i = 0; i < template.no_cmps; i++) {
+            new_data[0].push(0);
+        }
+        for (var i = 0; i < template.no_cmps; i++) {
+            if (cmps[i]) {
+                // Display selected metric
+                switch (template.proxies[proxy.id].metrics.selected) {
+                    case "r_local_gb":
+                        new_data[0][i] = cmps[i].r_local_gb * 100;
+                        bar_chart.changeColor(0, disk_color, disk_color_transparent);
+                        break;
+                    case "r_vcpus":
+                        new_data[0][i] = cmps[i].r_vcpus * 100;
+                        bar_chart.changeColor(0, cpu_color, cpu_color_transparent);
+                        break;
+                    case "r_memory_mb":
+                        new_data[0][i] = cmps[i].r_memory_mb * 100;
+                        bar_chart.changeColor(0, ram_color, ram_color_transparent);
+                        break;
+                }
+            }
+        };
+        bar_chart.update(new_data);
+        template.currentStep = snapshot.id;
+    }
+
     function _initCollapses(sim_address, new_proxy) {
         var collapse_icon = document.querySelector('#collapse-icon' + new_proxy.id);
 
@@ -404,10 +419,24 @@ document.querySelector('#live-template').addEventListener('template-bound', func
             if (collapse_content.opened) {
                 collapse_icon.classList.remove('closed');
                 collapse_icon.classList.add('opened');
-            }else if (!collapse_content.opened) {
+            } else if (!collapse_content.opened) {
                 collapse_icon.classList.remove('opened');
                 collapse_icon.classList.add('closed');
             }
         });
+    }
+
+    function _initDropdown(proxy, proxies_ref) {
+        var dropdown = document.querySelector('#metric-dropdown' + proxy.id);
+        proxies_ref.child().orderByKey().limitToLast(1).once('value', function(data) {
+            console.log(data.val());
+        })
+
+        dropdown.addEventListener('core-select', function(e) {
+            if (e.detail.isSelected) {
+                console.log(last_proxies_snapshots);
+
+            }
+        })
     }
 });
