@@ -3,8 +3,10 @@ The project is a simple [Docker](https://www.docker.com/) container running a [N
 It's purpose is to display the data resulting from the simulation runned by [Oscard](https://github.com/affear/oscard) that are stored and exposed through RESTful APIs by [Bifrost](https://github.com/affear/bifrost).
 
 ###Setup
-You simply build and run the Docker image:
+Clone the repo, build and run the Docker image:
 ```
+	git clone https://github.com/affear/polyphemus.git
+	cd polyphemus
 	docker build -t affear/polyphemus .
 	docker run -it --rm -p 80:3000 --name running-polyphemus affear/polyphemus
 ```
