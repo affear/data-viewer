@@ -235,13 +235,13 @@ paper-fab.blue {
 
 .proxy-toolbar {
     color: #6E6E6E;
-    font-size: 1.5em;
+    font-size: 0;
 }
 .proxy-toolbar .heading {
     font-size: 1rem;
     padding-left: 40px;
     padding-right: 40px;
-    padding-top: 15px;
+    padding-top: 5px;
     padding-bottom: 5px;
     font-weight: 400;
 }
