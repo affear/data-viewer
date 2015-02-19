@@ -146,6 +146,46 @@ document.querySelector('#live-template').addEventListener('template-bound', func
         });
     }
 
+    // SNAPSHOTS
+    function _update_sim(last_sim_id, proxy, line_chart, bar_chart) {
+        var new_proxy_snapshots_ref = sims_ref.child(last_sim_id + "/proxies/" + proxy.id + '/snapshots');
+        var no_failures_ref = sims_ref.child(last_sim_id + "/proxies/" + proxy.id + '/no_failures');
+        var last_sim_ref = sims_ref.child(last_sim_id);
+
+        // Update failures
+        no_failures_ref.on('value', function(data) {
+            template.proxies[proxy.id].stats[4].val = data.val();
+        });
+
+        // Get the runned snapshots and start to update the charts
+        new_proxy_snapshots_ref.once('value', function(data) {
+            // Start reading steps the last minus 10
+            var no_runned_steps = data.numChildren();
+
+            new_proxy_snapshots_ref.orderByKey().startAt((no_runned_steps - 10).toString()).on('child_added', function(data) {
+                var new_snapshot = {
+                    id: data.key(),
+                    val: data.val(),
+                }
+
+                _update_stats(last_sim_ref, proxy, new_snapshot);
+                _update_services(last_sim_ref, proxy);
+
+                // Get data
+                var avg_r_local_gb = parseFloat(new_snapshot.val.avg_r_local_gb * 100).toFixed(3);
+                var avg_r_memory_mb = parseFloat(new_snapshot.val.avg_r_memory_mb * 100).toFixed(3);;
+                var avg_r_vcpus = parseFloat(new_snapshot.val.avg_r_vcpus * 100).toFixed(3);;
+                var no_active_cmps = new_snapshot.val.no_active_cmps;
+                var command = new_snapshot.val.command;
+
+                // Add to the chart
+                line_chart.addData([avg_r_local_gb, avg_r_memory_mb, avg_r_vcpus, no_active_cmps], new_snapshot.id + ': ' + new_snapshot.val.command);
+
+                // BAR CHART
+                _updateBarChart(proxy, new_snapshot, bar_chart);
+            });
+        })
+    }
 
     // Helper functions
 
@@ -251,49 +291,6 @@ document.querySelector('#live-template').addEventListener('template-bound', func
             template.proxies[proxy.id].stats[3].val = parseFloat(data.val() * 100).toFixed(3);
         });
     }
-
-    // SNAPSHOTS
-    function _update_sim(last_sim_id, proxy, line_chart, bar_chart) {
-        var new_proxy_snapshots_ref = sims_ref.child(last_sim_id + "/proxies/" + proxy.id + '/snapshots');
-        var no_failures_ref = sims_ref.child(last_sim_id + "/proxies/" + proxy.id + '/no_failures');
-        var last_sim_ref = sims_ref.child(last_sim_id);
-
-        // Update failures
-        no_failures_ref.on('value', function(data) {
-            template.proxies[proxy.id].stats[4].val = data.val();
-        });
-
-        // Get the runned snapshot and start to update the charts
-        new_proxy_snapshots_ref.once('value', function(data) {
-            // Start reading steps the last minus 10
-            var no_runned_steps = data.numChildren();
-
-
-            new_proxy_snapshots_ref.orderByKey().startAt((no_runned_steps - 10).toString()).on('child_added', function(data) {
-                var new_snapshot = {
-                    id: data.key(),
-                    val: data.val(),
-                }
-
-                _update_stats(last_sim_ref, proxy, new_snapshot);
-                _update_services(last_sim_ref, proxy);
-
-                // Get data
-                var avg_r_local_gb = parseFloat(new_snapshot.val.avg_r_local_gb * 100).toFixed(3);
-                var avg_r_memory_mb = parseFloat(new_snapshot.val.avg_r_memory_mb * 100).toFixed(3);;
-                var avg_r_vcpus = parseFloat(new_snapshot.val.avg_r_vcpus * 100).toFixed(3);;
-                var no_active_cmps = new_snapshot.val.no_active_cmps;
-                var command = new_snapshot.val.command;
-
-                // Add to the chart
-                line_chart.addData([avg_r_local_gb, avg_r_memory_mb, avg_r_vcpus, no_active_cmps], new_snapshot.id + ': ' + new_snapshot.val.command);
-
-                // BAR CHART
-                _updateBarChart(proxy, new_snapshot, bar_chart);
-            });
-        })
-    }
-
 
     /*
     Sets the dataset configurations for the line chart with data-binding
