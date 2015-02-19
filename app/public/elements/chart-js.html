@@ -76,6 +76,7 @@
           if (this.chart.datasets[0].points.length > this.dataLimit) {
             this.chart.removeData();
           }
+          this.chart.update();
         },
 
         // Replace the current with newData a two dimension array
