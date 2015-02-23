@@ -2,8 +2,6 @@ document.querySelector('#live-template').addEventListener('template-bound', func
 
     // HTML Elements
     var template = document.querySelector('#live-template');
-    var sim_live = document.querySelector('#sim-live');
-    var no_running_msg = document.querySelector('#no-running-msg');
     var paper_spinner = document.querySelector('#loader');
     var metric_dropdown = document.querySelector('#metric-dropdown');
     var fab = document.querySelector('paper-fab');
@@ -26,6 +24,8 @@ document.querySelector('#live-template').addEventListener('template-bound', func
 
     // Template data-binding
     template.proxies = [];
+    template.model.running = false;
+    template.model.loading = true;
     template.generalInfos = [];
     template.currentStep = 0;
     template.progress = {
@@ -50,13 +50,20 @@ document.querySelector('#live-template').addEventListener('template-bound', func
 
         if (running) {
             console.log('Simulation is running');
+            template.model.loading = false;
+            template.model.running = true;
             _showRunningSim();
         } else {
             console.log('No simulation is running');
             // Show no running sim message
-            paper_spinner.style.display = 'none'
-            sim_live.style.display = 'none';
-            no_running_msg.style.display = 'flex';
+            template.model.loading = false;
+            template.model.running = false;
+            // Remove the sims components
+            var sim_live_template = document.querySelector('core-header-panel');
+            // Clena the DOM
+            while (sim_live_template.firstChild) {
+                sim_live_template.removeChild(sim_live_template.firstChild);
+            }
         }
     });
 
@@ -71,13 +78,11 @@ document.querySelector('#live-template').addEventListener('template-bound', func
             var last_sim_ref = bifrost.child('sims/' + last_sim_id);
             var last_sim_proxies_ref = last_sim_ref.child('proxies');
 
+            // Clean from previus sims
+            template.proxies = [];
+
             // FIREBASE: get added proxy values
             last_sim_proxies_ref.on('child_added', function(data) {
-
-                // Show sim
-                paper_spinner.style.display = 'none'
-                sim_live.style.display = 'flex';
-                no_running_msg.style.display = 'none';
 
                 var new_proxy = {
                     id: data.key(),

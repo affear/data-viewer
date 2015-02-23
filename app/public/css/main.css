@@ -84,8 +84,8 @@ core-header-panel {
     background-color: #fff;
     color: #000;
 }
-#sim-live {
-    display: none;
+#sim-live-content {
+    display: flex;
     width: 100%;
     height: 100%;
 }
@@ -119,7 +119,7 @@ paper-progress.red {
     width: 100%;
 }
 #no-running-msg {
-    display: none;
+    display: flex;
     height: 100%;
     text-align: center;
     align-items: center;
