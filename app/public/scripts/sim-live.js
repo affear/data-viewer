@@ -46,23 +46,31 @@ document.querySelector('#live-template').addEventListener('template-bound', func
     // FIREBASE: Get running value changes to start sim visualization
     running_ref.on('value', function(data) {
 
-        var running = data.val();
-
-        if (running) {
+        if (data.val()) {
             console.log('Simulation is running');
             template.model.loading = false;
             template.model.running = true;
             _showRunningSim();
         } else {
-            console.log('No simulation is running');
-            // Show no running sim message
-            template.model.loading = false;
-            template.model.running = false;
-            // Remove the sims components
-            var sim_live_template = document.querySelector('core-header-panel');
-            // Clena the DOM
-            while (sim_live_template.firstChild) {
-                sim_live_template.removeChild(sim_live_template.firstChild);
+            if (template.model.running) {
+                console.log('Simulation ended, waiting 2 minutes to hide data.');
+                
+                setTimeout(function() {
+                    // Show no running sim message
+                    template.model.loading = false;
+                    template.model.running = false;
+                    // Remove the sims components
+                    var sim_live_template = document.querySelector('core-header-panel');
+                    // Clena the DOM
+                    while (sim_live_template.firstChild) {
+                        sim_live_template.removeChild(sim_live_template.firstChild);
+                    }
+                }, 120 * 1000);
+            } else {
+                console.log('No simulation is running');
+                // Show no running sim message
+                template.model.loading = false;
+                template.model.running = false;
             }
         }
     });
