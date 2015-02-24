@@ -13,7 +13,7 @@ RUN tar -zxvf node.tar.gz -C node --strip-components 1 && rm node.tar.gz
 ENV PATH /node/bin:$PATH
 
 # Copy and install polyphemus 
-ADD app/* app/
+ADD app app/
 WORKDIR app
 RUN npm install
 RUN npm install -g bower
@@ -23,7 +23,7 @@ RUN bower install --allow-root
 WORKDIR /
 
 # Copy and make script runnable
-COPY scripts/* scripts/
+ADD scripts scripts/
 RUN chmod a+x scripts/run.sh
 
 CMD ["/scripts/run.sh"]
