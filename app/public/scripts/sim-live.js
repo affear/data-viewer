@@ -54,7 +54,8 @@ document.querySelector('#live-template').addEventListener('template-bound', func
         } else {
             if (template.model.running) {
                 console.log('Simulation ended, waiting 2 minutes to hide data.');
-                
+                document.querySelector('#sim-ended-toast').show();
+
                 setTimeout(function() {
                     // Show no running sim message
                     template.model.loading = false;
